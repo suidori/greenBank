@@ -1,9 +1,6 @@
 package DB;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,17 +44,26 @@ public class DBSign {
                         u_idx = userInfo.getInt("u_idx");
                         if (userInfo.getString("u_level").equals("clerk")) {
                             System.out.println(userInfo.getString("u_name") + " 직원 계정으로 로그인했습니다.");
+                            conn.close();
                             return loginState.CLERK;
                         } else {
                             System.out.println(userInfo.getString("u_name") + " 고객님, 반갑습니다.");
+                            conn.close();
                             return loginState.CUSTOMER;
                         }
                     } else {
                         System.out.println("비밀번호가 올바르지 않습니다.");
+                        conn.close();
                         return loginState.FAILED;
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("존재하지 않는 아이디입니다.");
+        try {
+            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,7 +157,7 @@ public class DBSign {
 
             String phoneInput;
 
-            while(true) {
+            while (true) {
                 System.out.println("전화번호를 입력 해 주세요.");
                 phoneInput = sc.nextLine();
 
@@ -167,7 +173,7 @@ public class DBSign {
                         phoneInput = phoneInput.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
                         System.out.printf("당신의 전화번호는 %s 입니다.\n\n", phoneInput);
                         break;
-                    }else {
+                    } else {
                         System.out.println("올바른 전화번호를 입력 해 주세요.");
                     }
                 }
@@ -183,7 +189,7 @@ public class DBSign {
             pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ?;");
             pstmt.setString(1, idInput);
             userInfo = pstmt.executeQuery();
-            if(userInfo.next()) {
+            if (userInfo.next()) {
                 System.out.println("입력된 정보");
                 System.out.println("회원번호: " + userInfo.getInt("u_idx"));
                 System.out.println("아이디: " + userInfo.getString("u_id"));
@@ -191,9 +197,15 @@ public class DBSign {
                 System.out.println("이름: " + userInfo.getString("u_name"));
                 System.out.println("전화번호: " + userInfo.getString("u_phone"));
             }
+            conn.close();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             return false;
         }
     }

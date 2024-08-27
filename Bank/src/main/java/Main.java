@@ -1,5 +1,5 @@
 import DB.*;
-//import Menu.*;
+import Menu.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -21,7 +21,7 @@ public class Main {
                     case 1:
                         loginState LS = dbSign.login(sc);
                         if(LS == loginState.CLERK){
-//                            ClerkMenu.c_main(dbSign.getU_idx());
+//                            ClerkMenu.c_main(dbSign.getU_idx(), sc);
                         }else if (LS==loginState.CUSTOMER){
 //                            CustomerMenu.c_main(dbSign.getU_idx());
                         }else{
