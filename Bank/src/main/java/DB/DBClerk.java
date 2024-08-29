@@ -57,6 +57,17 @@ public class DBClerk {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 System.out.printf("""
+                                [회원번호: %d], [이름: %s], [권한: %s]
+                                """,
+                        rs.getInt("u_idx"), rs.getString("u_name"),
+                        (rs.getString("u_level").equals("clerk")) ? "직원" : "고객");
+            }
+            System.out.println("회원번호를 입력 해 주세요.");
+            pstmt = conn.prepareStatement("SELECT * from users where u_idx like ?");
+            pstmt.setInt(1, sc.nextInt());
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                System.out.printf("""
                                 [회원번호: %d]
                                 [아이디: %s]
                                 [비밀번호: %s]
@@ -73,18 +84,28 @@ public class DBClerk {
     }
 
     public void edit(Scanner sc) {
+        System.out.println("이름을 입력 해 주세요.");
+        try {
+            pstmt = conn.prepareStatement("SELECT * from users where u_name like ?");
+            pstmt.setString(1, sc.next());
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                System.out.printf("""
+                                [회원번호: %d], [이름: %s], [권한: %s]
+                                """,
+                        rs.getInt("u_idx"), rs.getString("u_name"),
+                        (rs.getString("u_level").equals("clerk")) ? "직원" : "고객");
+            }
         int accountIdx;
         System.out.println("수정 할 회원의 회원번호를 입력 해 주세요.\n" +
                 "본인이 아닌 다른 직원의 정보는 수정할 수 없습니다.");
-        try {
             pstmt = conn.prepareStatement("SELECT * from users where u_idx like ?");
             accountIdx = sc.nextInt();
             pstmt.setInt(1, accountIdx);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 if (rs.getString("u_level").equals("clerk") && rs.getInt(u_idx) != u_idx) {
-                    System.out.println("다른 직원의 정보는 수정할 수 없습니다.");
-                    throw new RuntimeException();
+                    throw new RuntimeException("다른 직원의 정보는 수정할 수 없습니다.");
                 } else {
                     System.out.printf("""
                                     수정할 정보를 선택 해 주세요
@@ -251,16 +272,16 @@ public class DBClerk {
             pstmt.setInt(1, anum);
             rs = pstmt.executeQuery();
             if(rs.next()) {
-                System.out.printf("[계좌번호: %d], [잔액: %d]", rs.getInt("a_number"), rs.getInt("a_balance"));
+                System.out.printf("[계좌번호: %d], [잔액: %d]\n\n", rs.getInt("a_number"), rs.getInt("a_balance"));
             }
-            pstmt = conn.prepareStatement("SELECT * from history where a_number = ? ORDER BY h_date DESC LIMIT 5");
+            pstmt = conn.prepareStatement("SELECT * from history where a_number = ? ORDER BY h_timestamp DESC LIMIT 5");
             pstmt.setInt(1, anum);
             rs = pstmt.executeQuery();
             System.out.println("최근 거래 내역");
             while(rs.next()) {
-                System.out.printf("[계좌번호: %d], [거래 회원 번호: %d], [입/출금 금액: %d], [잔액: %d], [일시: %s %s]",
+                System.out.printf("[계좌번호: %d], [거래 회원 번호: %d], [입/출금 금액: %d], [잔액: %d], [일시: %s]\n",
                         rs.getInt("a_number"), rs.getInt("u_idx"), rs.getInt("h_calc"),
-                        rs.getInt("a_balance"), (rs.getDate("h_date")).toString(), (rs.getTime("h_time")).toString());
+                        rs.getInt("h_balance"), (rs.getDate("h_timestamp")).toString().toString());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -276,9 +297,14 @@ public class DBClerk {
             pstmt.setInt(1, accountNum);
             rs = pstmt.executeQuery();
             List<Integer> ownerList = new ArrayList<>();
-            while(rs.next()){
+            if(rs.next()){
                 System.out.printf("[계좌번호: %d], [계좌주: %d]",
                         rs.getInt("a_number"), rs.getInt("u_idx"));
+                ownerList.add(rs.getInt(u_idx));
+            }
+            while(rs.next()){
+                System.out.printf("[계좌주: %d]",
+                        rs.getInt("u_idx"));
                 ownerList.add(rs.getInt(u_idx));
             }
 
@@ -396,5 +422,4 @@ public class DBClerk {
 
 
     }
-
 }

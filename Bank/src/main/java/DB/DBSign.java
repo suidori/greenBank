@@ -34,7 +34,9 @@ public class DBSign {
                     1. 로그인
                     아이디와 비밀번호를 입력 해 주세요.
                     """);
+            System.out.print("아이디: ");
             String idInput = sc.next();
+            System.out.print("비밀번호: ");
             String passwordInput = sc.next();
 
             while (userInfo.next()) {
