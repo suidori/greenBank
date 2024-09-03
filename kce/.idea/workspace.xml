@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="118f108a-2361-47e8-9603-a18eb3e3ab7e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Accounts/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Accounts/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Accounts/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Accounts/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -29,7 +28,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "kce",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/PJ_GreenBank/kce/Accounts"
+    "last_opened_file_path": "D:/PJ_GreenBank/kce"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
