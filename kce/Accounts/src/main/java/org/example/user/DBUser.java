@@ -5,5 +5,5 @@ package org.example.user;
 1.전체조회
 ->로그인 된 사용자의 u_idx에 맞는 계좌번호,잔액 출력해줌
  */
-public class URepository {
+public class DBUser {
 }
