@@ -1,37 +1,47 @@
 package org.example;
 
 public class Accounts {
-    private String aNumber;
-    private double aBalance;
+    private int a_number;
+    private int a_password;
+    private int a_balance;
 
-
-    public Accounts(String aNumber, double aBalance) {
-        this.aNumber = aNumber;
-        this.aBalance = aBalance;
+    public Accounts(int a_number, int a_password, int a_balance) {
+        this.a_number = a_number;
+        this.a_password = a_password;
+        this.a_balance = a_balance;
     }
 
-    public String getaNumber() {
-        return aNumber;
+    public int getA_number() {
+        return a_number;
     }
 
-    public void setaNumber(String aNumber) {
-        this.aNumber = aNumber;
+    public void setA_number(int a_number) {
+        this.a_number = a_number;
     }
 
-    public double getaBalance() {
-        return aBalance;
+    public int getA_password() {
+        return a_password;
     }
 
-    public void setaBalance(double aBalance) {
-        this.aBalance = aBalance;
+    public void setA_password(int a_password) {
+        this.a_password = a_password;
+    }
+
+    public int getA_balance() {
+        return a_balance;
+    }
+
+    public void setA_balance(int a_balance) {
+        this.a_balance = a_balance;
     }
 
 
     @Override
     public String toString() {
-        return "Account{" +
-                "aNumber='" + aNumber + '\'' +
-                ", aBalance=" + aBalance +
+        return "Accounts{" +
+                "a_number=" + a_number +
+                ", a_password=" + a_password +
+                ", a_balance=" + a_balance +
                 '}';
     }
 }
