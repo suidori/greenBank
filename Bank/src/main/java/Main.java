@@ -7,8 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         System.out.println("초록은행에 오신 것을 환영합니다.");
-        boolean repeat = true;
-        while (repeat) {
+        while (true) {
             System.out.println("""
                             
                     메뉴를 선택 해 주세요.
@@ -30,20 +29,21 @@ public class Main {
                             } else if (LS == loginState.CUSTOMER) {
 //                            CustomerMenu.c_main(signIn.getU_idx());
                             } else {
-                                repeat = false;
                                 throw new RuntimeException();
                             }
                         }else {
-                            repeat = false;
+                            throw new RuntimeException();
                         }
                         break;
                     case 2:
                         DBSign signup = new DBSign();
-                        signup.register(sc);
+                        sc.nextLine();
+                        if(signup.isConnection()) {
+                            signup.register(sc);
+                        }
                         throw new RuntimeException();
                     case 3:
                         System.out.println("프로그램을 종료합니다");
-                        repeat = false;
                         break;
                     default:
                         throw new InputMismatchException();
