@@ -78,6 +78,8 @@ public class DBSign {
                 inputId = sc.nextLine();
                 cancle(inputId);
                 repeat = !isValidString(inputId);
+                pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ?");
+                pstmt.setString(1, inputId);
             }
             while (repeat) {
                 System.out.println("""
@@ -97,15 +99,14 @@ public class DBSign {
 
     }
 
-    private static boolean isValidString(String input) {
+    private boolean isValidString(String input) {
         String regex = "^[a-zA-Z0-9]+$";
 
         if (input == null) {
             return false;
-        }else if(!input.matches(regex)){
-            return false;
         }
 
+        return input.matches(regex);
     }
 
     private static void cancle(String input){
