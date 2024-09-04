@@ -12,7 +12,7 @@ public class AccountCheck {
                      = DriverManager.getConnection(
                 "jdbc:mysql://192.168.0.53:8888/Bank", "root", "1234")) {
 
-            PreparedStatement pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
+            PreparedStatement pstmt = conn.prepareStatement("select * from accounts where a_number = ? and a_password = ?");
             pstmt.setInt(1, a_number);
             pstmt.setInt(2, a_password);
             ResultSet rs = pstmt.executeQuery();
@@ -20,7 +20,7 @@ public class AccountCheck {
             if (rs.next()) {
                 return Accounts.builder()
                         .a_number(rs.getInt("a_number"))
-//  ????????????????                      .a_password(rs.getInt("a_password"))           비밀번호도 뜨게해야하나?
+//  ????????????????                      .a_password(rs.getInt("a_password"))    비밀번호도 뜨게해야하나?
                         .a_balance(rs.getInt("a_balance"))
                         .build();
             } else {

@@ -1,5 +1,8 @@
 package org.example;
 
+import lombok.Builder;
+
+@Builder
 public class Accounts {
     private int a_number;
     private int a_password;
@@ -38,10 +41,8 @@ public class Accounts {
 
     @Override
     public String toString() {
-        return "Accounts{" +
-                "a_number=" + a_number +
-                ", a_password=" + a_password +
-                ", a_balance=" + a_balance +
-                '}';
+        return "계좌번호= " + a_number +
+                "잔액= " + a_balance
+                ;
     }
 }

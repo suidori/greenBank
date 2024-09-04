@@ -88,9 +88,9 @@ public class ClerkMenu {
                         AccountCheck.aUpdate();
                     } else if (ac == 3) {
                         AccountCheck.aDelete();
-//??????메뉴선택으로 쓰이는 애들을 ClerkMenu로 다 빼버릴까...?
+//??????메뉴선택으로 쓰이는 애들을 ClerkMenu로 다 빼버릴까...? => 클래스 빼자
                     } else {
-//                        new ClerkMenu();
+
                     }
 
                 }

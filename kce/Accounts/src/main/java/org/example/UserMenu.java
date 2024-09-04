@@ -44,6 +44,7 @@ public class UserMenu {
                 System.out.println();
                 System.out.println("비밀번호 입력: ");
                 int aPassword = scnn.nextInt();
+
                 ClerkMenu.ACCOUNT = AccountCheck.findByAccount(aNumber, aPassword);
 
                 if (ACCOUNT == null) {
@@ -52,7 +53,7 @@ public class UserMenu {
                     System.out.println("계좌정보를 가져옵니다.");
                 }
                 System.out.println(ClerkMenu.ACCOUNT);
-
+                System.out.println();
 
             } else if (sc == 4) {
 
@@ -65,5 +66,10 @@ public class UserMenu {
             }
 
         }
+    }
+
+
+    public static void main(String[] args) {
+        new UserMenu();
     }
 }
