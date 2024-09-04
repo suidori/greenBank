@@ -12,9 +12,9 @@ public class DBRepository {
     public void myPage() {
         try {
             Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/GreenBank",
+                    "jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from Users where u_id = (?)");
+            PreparedStatement pstmt = conn.prepareStatement("select * from users where u_id = (?)");
             System.out.print("조회할 아이디를 입력하세요 : ");
             String usersID = scan.nextLine();
             pstmt.setString(1, usersID);
@@ -40,10 +40,10 @@ public class DBRepository {
     public void editInformation() {
         try {
             Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://127.0.0.1:3306/GreenBank",
+                    "jdbc:mysql://192.168.0.53:8888/Bank",
                     "root",
                     "1234");
-            PreparedStatement pstmt = conn.prepareStatement("update Users set u_password = ?,u_phone =? where u_id = ?");
+            PreparedStatement pstmt = conn.prepareStatement("update users set u_password = ?,u_phone =? where u_id = ?");
 
             System.out.print("아이디를 입력하세요 : ");
             String usersID = scan.nextLine();
@@ -91,9 +91,9 @@ public class DBRepository {
     }
         public void depositWithdraw () {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/GreenBank",
+            Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from Accounts where a_number = ?");
+            PreparedStatement pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
             while(true) {
                 System.out.println("입출금을 진행 하실 계좌번호를 입력하세요");
                 String accountNumbers = scan.nextLine();
@@ -120,12 +120,12 @@ public class DBRepository {
                     //처음 계좌를 받아서 잔액 조회 했던 계좌가 그대로 유지 되었으면 한다.
                     System.out.println("입금할 금액을 입력하세요");
                     int balances = scan.nextInt();
-                    PreparedStatement calc = conn.prepareStatement("update Accounts set a_balance = a_balance + ? where a_number = ?");
+                    PreparedStatement calc = conn.prepareStatement("update accounts set a_balance = a_balance + ? where a_number = ?");
                     calc.setInt(1, balances);
                     calc.setString(2, accountNumbers);
                     calc.executeUpdate();
 
-                    pstmt = conn.prepareStatement("select * from Accounts where a_number = ?");
+                    pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
                     pstmt.setString(1, accountNumbers);
                     rs = pstmt.executeQuery();
                     if (rs.next()) {
@@ -139,12 +139,12 @@ public class DBRepository {
                     //처음 계좌를 받아서 잔액 조회 했던 계좌가 그대로 유지 되었으면 한다.
                     System.out.println("출금할 금액을 입력하세요");
                     int balances = scan.nextInt();
-                    PreparedStatement calc = conn.prepareStatement("update Accounts set a_balance = a_balance - ? where a_number = ?");
+                    PreparedStatement calc = conn.prepareStatement("update accounts set a_balance = a_balance - ? where a_number = ?");
                     calc.setInt(1, balances);
                     calc.setString(2, accountNumbers);
                     calc.executeUpdate();
 
-                    pstmt = conn.prepareStatement("select * from Accounts where a_number = ?");
+                    pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
                     pstmt.setString(1, accountNumbers);
                     rs = pstmt.executeQuery();
                     if (rs.next()) {
