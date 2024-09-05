@@ -5,7 +5,12 @@ import java.util.Scanner;
 
 public class Main {
     Scanner scan = new Scanner(System.in);
-    DBRepository dbRepository = new DBRepository();
+    DBRepository dbRepository = new DBRepository(7);
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.start();
+    }
         public void start(){
             try {
                 System.out.println("""
@@ -28,8 +33,5 @@ public class Main {
 
             }
         }
-        public static void main(String[] args) {
-            Main main = new Main();
-            main.start();
-    }
+
 }

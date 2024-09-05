@@ -4,10 +4,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class DBRepository {
     Scanner scan = new Scanner(System.in);
+    public int u_idx;
+
+    public DBRepository(int u_idx) {
+        this.u_idx = u_idx;
+    }
 
     public void myPage() {
         try {
@@ -89,71 +95,127 @@ public class DBRepository {
             e.printStackTrace();
         }
     }
-        public void depositWithdraw () {
+
+    public void depositWithdraw () {
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
             PreparedStatement pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
-            while(true) {
+            boolean done = false;
+            while(!done) {
+                int accountNumbers;
+                ResultSet rs = null;
+                try {
                 System.out.println("입출금을 진행 하실 계좌번호를 입력하세요");
-                String accountNumbers = scan.nextLine();
-                pstmt.setString(1, accountNumbers);
-                ResultSet rs = pstmt.executeQuery();
+                accountNumbers = scan.nextInt();
+                pstmt.setInt(1, accountNumbers);
+                rs = pstmt.executeQuery();
                 boolean row = true;
                 while (rs.next()) {
                     System.out.println("""
                             현재 귀하의 %s 계좌의 현재 잔액은 : %d 원 입니다.
-                            """.formatted(rs.getString("a_number"),
-                            rs.getInt("a_balance")
+                            """.formatted(rs.getInt("a_number"),
+                            rs.getLong("a_balance")
                     ));
                     row = false;
                 }
+
                 if (row) {
                     System.out.println("없는 계좌번호입니다. 다시 적어주시길 바랍니다.");
                     continue;
                 }
-
-                System.out.println("입금은 1번 출금은 2번을 입력해 주세요");
-                int choice = scan.nextInt();
-
-                if (choice == 1) {
-                    //처음 계좌를 받아서 잔액 조회 했던 계좌가 그대로 유지 되었으면 한다.
-                    System.out.println("입금할 금액을 입력하세요");
-                    int balances = scan.nextInt();
-                    PreparedStatement calc = conn.prepareStatement("update accounts set a_balance = a_balance + ? where a_number = ?");
-                    calc.setInt(1, balances);
-                    calc.setString(2, accountNumbers);
-                    calc.executeUpdate();
-
-                    pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
-                    pstmt.setString(1, accountNumbers);
-                    rs = pstmt.executeQuery();
-                    if (rs.next()) {
-                        System.out.println("""
-                                입금 후 귀하의 %s 계좌의 현재 잔액은 : %d 원 입니다.
-                                """.formatted(accountNumbers, rs.getInt("a_balance")));
+                }catch (InputMismatchException e){
+                    System.out.println("숫자만 입력해주세요");
+                    scan.nextLine();
+                    continue;
+                }
+                while (true) {
+                    System.out.println("입금은 1번 출금은 2번을 입력해 주세요");
+                    if (!scan.hasNextInt()) {
+                        System.out.println("숫자만 입력하세요");
+                        scan.next();
+                        continue;
                     }
-                    break;
+                    int choice = scan.nextInt();
+                    if (choice == 1 ) {
+                        System.out.println("입금할 금액을 입력하세요");
+                        long balances = scan.nextLong();
+                        pstmt = conn.prepareStatement("update accounts set a_balance = a_balance + ? where a_number = ?");
+                        pstmt.setLong(1, balances);
+                        pstmt.setInt(2, accountNumbers);
+                        pstmt.executeUpdate();
 
-                } else if (choice == 2) {
-                    //처음 계좌를 받아서 잔액 조회 했던 계좌가 그대로 유지 되었으면 한다.
-                    System.out.println("출금할 금액을 입력하세요");
-                    int balances = scan.nextInt();
-                    PreparedStatement calc = conn.prepareStatement("update accounts set a_balance = a_balance - ? where a_number = ?");
-                    calc.setInt(1, balances);
-                    calc.setString(2, accountNumbers);
-                    calc.executeUpdate();
+                        pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
+                        pstmt.setInt(1, accountNumbers);
+                        rs = pstmt.executeQuery();
+                        if (rs.next()) {
+                            System.out.println("""
+                                    입금 후 귀하의 %s 계좌의 현재 잔액은 : %d 원 입니다.
+                                    """.formatted(accountNumbers, rs.getLong("a_balance")));
 
-                    pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
-                    pstmt.setString(1, accountNumbers);
-                    rs = pstmt.executeQuery();
-                    if (rs.next()) {
-                        System.out.println("""
-                                입금 후 귀하의 %s 계좌의 현재 잔액은 : %d 원 입니다.
-                                """.formatted(accountNumbers, rs.getInt("a_balance")));
+                            pstmt = conn.prepareStatement("insert into history(a_number, u_idx, h_calc , h_balance) values(?,?,?,?)");
+                            pstmt.setInt(1, accountNumbers);
+                            pstmt.setInt(2, u_idx);
+                            pstmt.setLong(3, balances);
+                            pstmt.setLong(4, rs.getLong("a_balance"));
+                            pstmt.executeUpdate();
+
+                            done = true;
+                            break;
+                        }
                     }
-                    break;
+                        else if (choice == 2 ) {
+                        pstmt = conn.prepareStatement("select a_balance from accounts where a_number = ?");
+                        pstmt.setInt(1, accountNumbers);
+                        rs = pstmt.executeQuery();
+                            if (rs.next() && rs.getLong("a_balance") == 0){
+                                System.out.println("잔액이 0원이므로 종료됩니다.");
+                                break;
+                            }
+                        Long balances;
+                        while (true) {
+                            System.out.println("출금할 금액을 입력하세요");
+                            balances = scan.nextLong();
+                            pstmt.setInt(1, accountNumbers);
+                            rs = pstmt.executeQuery();
+                            if (rs.next()){
+                                long balance = rs.getLong("a_balance");
+                            if (balances > balance) {
+                                System.out.println("잔액이 부족합니다.");
+                                continue;
+                            } else {
+                                break;
+                            }
+                            }
 
+                        }
+                            pstmt = conn.prepareStatement("update accounts set a_balance = a_balance - ? where a_number = ?");
+                            pstmt.setLong(1, balances);
+                            pstmt.setInt(2, accountNumbers);
+                            pstmt.executeUpdate();
+
+                            pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
+                            pstmt.setInt(1, accountNumbers);
+                            rs = pstmt.executeQuery();
+                            if (rs.next()) {
+                                System.out.println("""
+                                    출금 후 귀하의 %s 계좌의 현재 잔액은 : %d 원 입니다.
+                                    """.formatted(accountNumbers, rs.getLong("a_balance")));
+
+                                pstmt = conn.prepareStatement("insert into history(a_number, u_idx, h_calc , h_balance) values(?,?,?,?)");
+                                pstmt.setInt(1, accountNumbers);
+                                pstmt.setInt(2, u_idx);
+                                pstmt.setLong(3, -balances);
+                                pstmt.setLong(4, rs.getLong("a_balance"));
+                                pstmt.executeUpdate();
+
+                                done = true;
+
+                                break;
+                            }
+                    } else {
+                        System.out.println("1또는 2만 입력하세요");
+                    }
                 }
             }
         }catch (Exception e){
