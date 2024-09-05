@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         System.out.println("초록은행에 오신 것을 환영합니다.");
         while (true) {
             System.out.println("""
@@ -14,24 +15,20 @@ public class Main {
                     2. 회원가입
                     3. 종료
                     """);
-
-            Scanner sc = new Scanner(System.in);
             try {
                 switch (sc.nextInt()) {
                     case 1:
                         DBSign signIn = new DBSign();
                         sc.nextLine();
                         if (signIn.isConnection()) {
-                            loginState LS = signIn.login(sc);
-                            if (LS == loginState.CLERK) {
-                                System.out.println("직원 메뉴 실행");
-                            } else if (LS == loginState.CUSTOMER) {
-                                System.out.println("고객 메뉴 실행");
-                            } else {
-                                throw new RuntimeException();
+                            switch(signIn.login(sc)){
+                                case CLERK:
+                                    //직원 메뉴 실행
+                                case CUSTOMER:
+                                    //고객 메뉴 실행
+                                case FAILED:
+                                    throw new RuntimeException();
                             }
-                        } else {
-                            break;
                         }
                         break;
                     case 2:

@@ -7,10 +7,7 @@ public class DBSign {
 
     private boolean connection;
     private int u_idx;
-
-    Connection conn = null;
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
+    private Connection conn;
 
     public int getU_idx() {
         return u_idx;
@@ -20,9 +17,7 @@ public class DBSign {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(
-                    "jdbc:mysql://192.168.0.53:8888/Bank",
-                    "root",
-                    "1234"
+                    "jdbc:mysql://192.168.0.53:8888/Bank", "root", "1234"
             );
             connection = true;
         } catch (Exception e) {
@@ -41,156 +36,111 @@ public class DBSign {
         String inputId = sc.nextLine();
         System.out.println("비밀번호: ");
         String passwordInput = sc.nextLine();
-        try {
-            pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ? AND u_password = ?");
+
+        try (PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ? AND u_password = ?")) {
             pstmt.setString(1, inputId);
             pstmt.setString(2, passwordInput);
-            rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                System.out.printf("권한: %s\n", (rs.getString("u_level").equals("clerk")) ? "직원" : "고객");
-                Thread.sleep(1000);
-                System.out.printf("%s님, 반갑습니다.\n", rs.getString("u_name"));
-                Thread.sleep(1000);
                 u_idx = rs.getInt("u_idx");
-                return (rs.getString("u_level").equals("clerk")) ? loginState.CLERK : loginState.CUSTOMER;
+                String level = rs.getString("u_level").equals("clerk") ? "직원" : "고객";
+                System.out.printf("권한: %s\n%s님, 반갑습니다.\n", level, rs.getString("u_name"));
+                return rs.getString("u_level").equals("clerk") ? loginState.CLERK : loginState.CUSTOMER;
             } else {
                 System.out.println("아이디 또는 비밀번호가 일치하지 않습니다.");
                 return loginState.FAILED;
             }
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
+            return loginState.FAILED;
         }
-        return loginState.FAILED;
     }
 
-    public void register(Scanner sc) throws SQLException {
+    public void register(Scanner sc) {
         System.out.println("회원 가입을 진행합니다.");
-
-        String inputId;
-        String inputPassword;
-        String inputName;
-        String inputPhone;
         try {
-            while (true) {
-                System.out.println("""
-                                        
-                        초기 화면으로 돌아가고 싶다면 '취소'를 입력 해 주세요.
-                        아이디는 영어 대소문자, 숫자만 입력 가능합니다.
-                        아이디:
-                        """);
-                inputId = sc.nextLine();
-                cancel(inputId);
-                if (!isValidString(inputId)) {
-                    continue;
-                }
-                pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ?");
+            String inputId = getValidInput(sc, "아이디", this::isValidString, "SELECT * FROM users WHERE u_id = ?");
+            String inputPassword = getValidInput(sc, "비밀번호", this::isValidString, null);
+            String inputName = getValidInput(sc, "이름", this::isValidName, null);
+            String inputPhone = getValidInput(sc, "전화번호", this::isValidPhone, "SELECT * FROM users WHERE u_phone = ?");
+
+            String insertQuery = "INSERT INTO users (u_id, u_password, u_name, u_phone) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
                 pstmt.setString(1, inputId);
-                rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    System.out.println("중복된 아이디입니다.");
+                pstmt.setString(2, inputPassword);
+                pstmt.setString(3, inputName);
+                pstmt.setString(4, inputPhone);
+                pstmt.executeUpdate();
+                System.out.printf("회원 가입이 완료되었습니다.\n아이디: %s\n이름: %s\n전화번호: %s\n", inputId, inputName, inputPhone);
+            }
+        } catch (SQLException e) {
+            System.out.println("초기 화면으로 돌아갑니다.");
+        }
+    }
+
+    private String getValidInput(Scanner sc, String prompt, Validator validator, String query) throws SQLException {
+        String input;
+        while (true) {
+            System.out.printf("%s 입력 해 주세요: ", prompt);
+            input = sc.nextLine();
+            cancel(input);
+            if (validator.validate(input)) {
+                if (query != null && isDuplicate(input, query)) {
+                    System.out.println("이미 가입된 " + prompt + "입니다.");
                 } else {
                     break;
                 }
             }
-            while (true) {
-                System.out.println("""
-                                        
-                        초기 화면으로 돌아가고 싶다면 '취소'를 입력 해 주세요.
-                        비밀번호는 영어 대소문자, 숫자만 입력 가능합니다.
-                        비밀번호:
-                        """);
-                inputPassword = sc.nextLine();
-                cancel(inputPassword);
-                if (isValidString(inputPassword)) {
-                    break;
-                }
-            }
-            while (true) {
-                System.out.println("""
-                                        
-                        초기 화면으로 돌아가고 싶다면 '취소'를 입력 해 주세요.
-                        이름은 영문이나 한글만 사용할 수 있습니다.
-                        이름:
-                        """);
-                inputName = sc.nextLine();
-                cancel(inputName);
-                if (isValidName(inputName)) {
-                    break;
-                }
-            }
-            while (true) {
-                System.out.println("""
-                                        
-                        초기 화면으로 돌아가고 싶다면 '취소'를 입력 해 주세요.
-                        전화번호는 '010-1234-5678' 또는 '01012345678'의 형태로 입력 해 주세요.
-                        전화번호:
-                        """);
-                inputPhone = sc.nextLine();
-                cancel(inputPhone);
-                if (isValidPhone(inputPhone)) {
-                    String noHyphen = "^\\d{11}$";
-
-                    if (inputPhone.matches(noHyphen)) {
-                        inputPhone = inputPhone.substring(0, 3) + "-" + inputPhone.substring(3, 7) + "-" + inputPhone.substring(7);
-                    }
-                    break;
-                }
-            }
-
-            pstmt = conn.prepareStatement("INSERT INTO users (u_id, u_password, u_name, u_phone) VALUES (?, ?, ?, ?);");
-            pstmt.setString(1, inputId);
-            pstmt.setString(2, inputPassword);
-            pstmt.setString(3, inputName);
-            pstmt.setString(4, inputPhone);
-            pstmt.executeUpdate();
-
-            System.out.printf("""
-                    회원 가입이 완료되었습니다.
-                    회원 정보
-                    아이디: %s
-                    비밀번호: %s
-                    이름: %s
-                    전화번호: %s
-                    %n""", inputId, inputPassword, inputName, inputPhone);
-
-        } catch (Exception e) {
-            System.out.println("초기 화면으로 돌아갑니다.");
         }
-        conn.close();
+        return input;
+    }
+
+    private boolean isDuplicate(String input, String query) throws SQLException {
+        if(input.matches("^\\d{11}$")){
+            input = input.substring(0,3) + "-" + input.substring(3,7) + "-" + input.substring(7);
+        }
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, input);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        }
+    }
+
+    private interface Validator {
+        boolean validate(String input);
+    }
+
+    private void cancel(String input) {
+        if (input.equals("취소")) {
+            throw new RuntimeException("취소되었습니다.");
+        }
     }
 
     private boolean isValidString(String input) {
-        String regex = "^[a-zA-Z0-9]+$";
-
-        if (input.isEmpty() || input.isBlank()) {
+        if(input.matches("^[a-zA-Z0-9]+$")){
+            return true;
+        }else{
+            System.out.println("영어 대소문자와 숫자만 사용 가능합니다.");
             return false;
-        }
-
-        return input.matches(regex);
-    }
-
-    private static void cancel(String input) {
-        if (input.equals("취소")) {
-            throw new RuntimeException("회원 가입 취소");
         }
     }
 
     private boolean isValidName(String input) {
-        String englishRegex = "^[a-zA-Z]+$";
-        String koreanRegex = "^[가-힣]+$";
-
-        if (input.contains(" ") || input.isEmpty()) {
+        if(input.matches("^[a-zA-Z]+$") || input.matches("^[가-힣]+$")){
+            return true;
+        }else{
+            System.out.println("영문으로만, 또는 한글로만 작성되어야 합니다.");
             return false;
         }
-
-        return input.matches(englishRegex) || input.matches(koreanRegex);
     }
 
     private boolean isValidPhone(String input) {
-        String regex = "^\\d{3}-\\d{4}-\\d{4}$|^\\d{11}$";
-        return input.matches(regex);
+        if(input.matches("^\\d{3}-\\d{4}-\\d{4}$|^\\d{11}$")){
+            return true;
+        }else{
+            System.out.println("3-4-4의 숫자 형태나 11자리의 숫자 형태만 허용됩니다.");
+            return false;
+        }
     }
-
 }
