@@ -1,4 +1,4 @@
-package org.example;
+package org.example.sang;
 
 import lombok.Builder;
 
