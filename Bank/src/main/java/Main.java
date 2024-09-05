@@ -1,5 +1,4 @@
 import DB.*;
-import Menu.*;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -22,24 +21,26 @@ public class Main {
                     case 1:
                         DBSign signIn = new DBSign();
                         sc.nextLine();
-                        if(signIn.isConnection()) {
+                        if (signIn.isConnection()) {
                             loginState LS = signIn.login(sc);
                             if (LS == loginState.CLERK) {
-                                ClerkMenu.c_main(signIn.getU_idx(), sc);
+                                System.out.println("직원 메뉴 실행");
                             } else if (LS == loginState.CUSTOMER) {
-//                            CustomerMenu.c_main(signIn.getU_idx());
+                                System.out.println("고객 메뉴 실행");
                             } else {
                                 throw new RuntimeException();
                             }
-                        }else {
-                            throw new RuntimeException();
+                        } else {
+                            break;
                         }
                         break;
                     case 2:
                         DBSign signup = new DBSign();
                         sc.nextLine();
-                        if(signup.isConnection()) {
+                        if (signup.isConnection()) {
                             signup.register(sc);
+                        } else {
+                            break;
                         }
                         throw new RuntimeException();
                     case 3:

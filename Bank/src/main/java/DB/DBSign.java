@@ -36,11 +36,11 @@ public class DBSign {
     }
 
     public loginState login(Scanner sc) {
+        System.out.println("로그인 메뉴입니다.");
         System.out.println("아이디: ");
         String inputId = sc.nextLine();
         System.out.println("비밀번호: ");
         String passwordInput = sc.nextLine();
-
         try {
             pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_id = ? AND u_password = ?");
             pstmt.setString(1, inputId);
@@ -49,7 +49,9 @@ public class DBSign {
 
             if (rs.next()) {
                 System.out.printf("권한: %s\n", (rs.getString("u_level").equals("clerk")) ? "직원" : "고객");
-                System.out.printf("%s님, 반갑습니다.");
+                Thread.sleep(1000);
+                System.out.printf("%s님, 반갑습니다.\n", rs.getString("u_name"));
+                Thread.sleep(1000);
                 u_idx = rs.getInt("u_idx");
                 return (rs.getString("u_level").equals("clerk")) ? loginState.CLERK : loginState.CUSTOMER;
             } else {
