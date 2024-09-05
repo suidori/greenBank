@@ -97,6 +97,7 @@ public class DBSign {
             System.out.println("초기 화면으로 돌아갑니다.");
         }
 
+        return repeat;
     }
 
     private boolean isValidString(String input) {

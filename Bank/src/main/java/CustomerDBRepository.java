@@ -6,9 +6,6 @@ import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class CustomerDBRepository {
-    //+ 고객 정보 조회(select)
-    //+ 정보 수정 2개(update)
-
 
     // 나의 정보 조회(마이페이지)
     public void myPage(int u_idx) {
@@ -32,7 +29,7 @@ public class CustomerDBRepository {
                                 이름 = %s
                                 전화번호 = %s
                                 """.formatted(
-                                rs.getInt("idx"),
+                                rs.getInt("u_idx"),
                                 rs.getString("u_level"),
                                 rs.getString("u_id"),
                                 rs.getString("u_password"),
@@ -46,6 +43,7 @@ public class CustomerDBRepository {
         }
     }
 
+    // 직원 -> 고객 정보 조회
     public void custInfo() {
         Scanner scan = new Scanner(System.in);
         try(Connection conn = DriverManager.getConnection
@@ -88,7 +86,7 @@ public class CustomerDBRepository {
                                 이름 = %s
                                 전화번호 = %s
                                 """.formatted(
-                                rs2.getInt("idx"),
+                                rs2.getInt("u_idx"),
                                 rs2.getString("u_level"),
                                 rs2.getString("u_id"),
                                 rs2.getString("u_password"),
@@ -103,46 +101,170 @@ public class CustomerDBRepository {
     }
 
     // 본인 정보 수정
-    public void c_update(int u_idx) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
+    public void myPageEdit(int u_idx) {
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
-                    "root", "1234");
+        try(Connection conn = DriverManager.getConnection
+                ("jdbc:mysql://192.168.0.53:8888/Bank","root",
+                        "1234")){
+            Scanner scan = new Scanner(System.in);
 
-            pstmt = conn.prepareStatement("UPDATE users SET u_id = ?, u_password = ?, u_name = ?, u_phone = ? WHERE idx = ?");
+            PreparedStatement pstmt = conn.prepareStatement("select u_name from users where u_idx = ?");
+            pstmt.setInt(1,u_idx);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
 
-            pstmt.setInt(5, u_idx);
+            System.out.println("""
+                    <%s 고객님> 수정할 정보의 번호를 입력해주세요.
+                    1. 아이디
+                    2. 비밀번호
+                    3. 이름
+                    4. 핸드폰번호
+                    """.formatted(rs.getString("u_name")));
 
-            String id = JOptionPane.showInputDialog("수정할 아이디");
-            pstmt.setString(1, id);
+            switch (scan.nextInt()){
+                case 1:
+                    System.out.println("수정할 아이디를 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_id = ? WHERE u_idx = ?
+                    """);
+                    String id = scan.next();
+                    pstmt.setString(1, id);
+                    pstmt.setInt(2, u_idx);
+                    break;
 
-            int pw = Integer.parseInt(JOptionPane.showInputDialog("수정할 비밀번호"));
-            pstmt.setInt(2, pw);
+                case 2:
+                    System.out.println("수정할 비밀번호를 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_password = ? WHERE u_idx = ?
+                    """);
+                    int pw = scan.nextInt();
+                    pstmt.setInt(1, pw);
+                    pstmt.setInt(2, u_idx);
+                    break;
 
-            String name = JOptionPane.showInputDialog("수정할 이름");
-            pstmt.setString(3, name);
+                case 3:
+                    System.out.println("수정할 이름을 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_name = ? WHERE u_idx = ?
+                    """);
+                    String name = scan.next();
+                    pstmt.setString(1, name);
+                    pstmt.setInt(2, u_idx);
 
-            String pn = JOptionPane.showInputDialog("수정할 핸드폰번호(-까지 입력해주세요)");
-            pstmt.setString(4, pn);
+                    break;
 
+                case 4:
+                    System.out.println("수정할 핸드폰번호를 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_phone = ? WHERE u_idx = ?
+                    """);
+                    String pn = scan.next();
+                    pstmt.setString(4, pn);
+                    pstmt.setInt(2, u_idx);
+                    break;
+            }
 
             pstmt.executeUpdate();
-
+            System.out.println("수정이 완료되었습니다.");
+            System.out.println();
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (pstmt != null)
-                    pstmt.close();
-                if (conn != null)
-                    conn.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+        }
+    }
+
+    // 직원 -> 고객 정보 수정
+    public void custInfoEdit() {
+
+        try(Connection conn = DriverManager.getConnection
+                ("jdbc:mysql://192.168.0.53:8888/Bank","root",
+                        "1234")){
+            Scanner scan = new Scanner(System.in);
+
+            System.out.println("""
+                    정보를 수정할 고객의 이름을 입력하세요.
+                    """);
+            PreparedStatement pstmt = conn.prepareStatement("select u_name, u_id, u_idx from users where u_name = ?");
+            String name = scan.nextLine();
+            pstmt.setString(1,name);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                System.out.println("""
+                    이름 = %s
+                    은행고유번호 = %d
+                    아이디 = %s
+                    """.formatted(
+                        rs.getString("u_name"),
+                        rs.getInt("u_idx"),
+                        rs.getString("u_id")
+                ));
             }
+
+            System.out.println("""
+                    정보를 수정할 고객의 은행고유번호를 선택해주세요.
+                    """);
+            pstmt = conn.prepareStatement("select u_name from users where u_idx = ?");
+            int u_idx2 = scan.nextInt();
+            pstmt.setInt(1,u_idx2);
+            rs = pstmt.executeQuery();
+            rs.next();
+            System.out.println("""
+                    <%s 고객님> 수정할 정보의 번호를 입력해주세요.
+                    1. 아이디
+                    2. 비밀번호
+                    3. 이름
+                    4. 핸드폰번호
+                    """.formatted(rs.getString("u_name")));
+
+            int cho = scan.nextInt();
+
+            switch (cho){
+                case 1:
+                    System.out.println("수정할 아이디를 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_id = ? WHERE u_idx = ?
+                    """);
+                    String id = scan.nextLine();
+                    pstmt.setString(1, id);
+                    pstmt.setInt(2, u_idx2);
+                    break;
+
+                case 2:
+                    System.out.println("수정할 비밀번호를 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_password = ? WHERE u_idx = ?
+                    """);
+                    int pw = scan.nextInt();
+                    pstmt.setInt(1, pw);
+                    pstmt.setInt(2, u_idx2);
+                    break;
+
+                case 3:
+                    System.out.println("수정할 이름을 입력해주세요.");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_name = ? WHERE u_idx = ?
+                    """);
+                    String name2 = scan.nextLine();
+                    pstmt.setString(1, name2);
+                    pstmt.setInt(2, u_idx2);
+                    break;
+
+                case 4:
+                    System.out.println("수정할 핸드폰번호를(-까지 입력해주세요)");
+                    pstmt = conn.prepareStatement("""
+                    UPDATE users SET u_phone = ? WHERE u_idx = ?
+                    """);
+                    String pn = scan.nextLine();
+                    pstmt.setString(4, pn);
+                    pstmt.setInt(2, u_idx2);
+                    break;
+            }
+
+            pstmt.executeUpdate();
+            System.out.println("수정이 완료되었습니다.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

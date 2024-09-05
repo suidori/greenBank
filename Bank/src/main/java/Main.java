@@ -6,54 +6,56 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("초록은행에 오신 것을 환영합니다.");
-        boolean repeat = true;
-        while (repeat) {
-            System.out.println("""
-                            
-                    메뉴를 선택 해 주세요.
-                    1. 로그인
-                    2. 회원가입
-                    3. 종료
-                    """);
+        CustomerMenu2.c_main();
+    }
+}
 
-            Scanner sc = new Scanner(System.in);
-            try {
-                switch (sc.nextInt()) {
-                    case 1:
-                        DBSign signIn = new DBSign();
-                        sc.nextLine();
-                        if(signIn.isConnection()) {
-                            loginState LS = signIn.login(sc);
-                            if (LS == loginState.CLERK) {
-                                ClerkMenu.c_main(signIn.getU_idx(), sc);
-                            } else if (LS == loginState.CUSTOMER) {
-//                            CustomerMenu.c_main(signIn.getU_idx());
-                            } else {
-                                repeat = false;
-                                throw new RuntimeException();
-                            }
-                        }else {
-                            repeat = false;
-                        }
-                        break;
-                    case 2:
-                        DBSign signup = new DBSign();
-                        signup.register(sc);
-                        throw new RuntimeException();
-                    case 3:
-                        System.out.println("프로그램을 종료합니다");
-                        repeat = false;
-                        break;
-                    default:
-                        throw new InputMismatchException();
-                }
-                break;
-            } catch (Exception e) {
-                if (e instanceof InputMismatchException) {
-                    System.out.println("1이나 2를 입력 해 주세요");
-                }
+class CustomerMenu2 {
+    public static void c_main() {
+
+        Scanner scan = new Scanner(System.in);
+
+        System.out.println("""
+                고객의 은행고유번호 입력하시오.
+                """);
+        int num1 = scan.nextInt();
+
+        while (true) {
+            System.out.println("""
+                    원하는 메뉴를 선택해주세요.
+                    1. 내 정보 조회
+                    2. 고객의 정보 조회
+                    3. 내 정보 수정
+                    4. 고객 정보 수정
+                    5. 종료
+                    """);
+            int num2 = scan.nextInt();
+
+            CustomerDBRepository customerDBRepository = new CustomerDBRepository();
+
+            switch (num2) {
+                case 1:
+                    customerDBRepository.myPage(num1);
+                    break;
+
+                case 2:
+                    customerDBRepository.custInfo();
+                    break;
+
+                case 3:
+                    customerDBRepository.myPage(num1);
+                    customerDBRepository.myPageEdit(num1);
+                    customerDBRepository.myPage(num1);
+                    break;
+
+                case 4:
+                    customerDBRepository.custInfoEdit();
+                    customerDBRepository.custInfo();
+                    break;
             }
+            System.out.println();
+            if (num2 == 5)
+                break;
         }
     }
 }
