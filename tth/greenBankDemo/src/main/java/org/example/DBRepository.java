@@ -100,13 +100,28 @@ public class DBRepository {
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
+            PreparedStatement pstmt = conn.prepareStatement("select * from owners where u_idx = 10");
             boolean done = false;
             while(!done) {
                 int accountNumbers;
                 ResultSet rs = null;
+                rs = pstmt.executeQuery();
                 try {
-                System.out.println("입출금을 진행 하실 계좌번호를 입력하세요");
+                System.out.print("""
+                        현재 접속한 본인의 전체 계좌번호 목록을 조회합니다.
+                        =====================================
+                        """);
+                while (rs.next()) {
+                        System.out.print("""
+                        계좌번호 : %d
+                        """.formatted(
+                                rs.getInt("a_number")));
+                    }
+                    System.out.println("""
+                        =====================================
+                        입출금을 진행 하실 계좌번호를 입력하세요
+                        """);
+                pstmt = conn.prepareStatement("select * from accounts where a_number = ?");
                 accountNumbers = scan.nextInt();
                 pstmt.setInt(1, accountNumbers);
                 rs = pstmt.executeQuery();
