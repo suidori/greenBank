@@ -56,7 +56,7 @@ public class AccClerk {
             }
             list.stream()
                     .forEach(System.out::println);
-
+                                                    //빌더 안 쓰고 걍 출력되도록!
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,14 +75,17 @@ public class AccClerk {
 
         while (true) {
             System.out.println("계좌 정보 조회");
-            System.out.print("회원번호: ");
-            int uIdx = sc.nextInt();
+            System.out.print("성함: ");
+            int uName = sc.nextInt();
             try {
-                pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_idx = ?");
-                pstmt.setInt(1, uIdx);
+                pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_name = ?");
+                pstmt.setInt(1, uName);
                 rs = pstmt.executeQuery();
 
-                if (rs.next()) {    //존재하는 회원번호라면
+                if (rs.next()) {    //존재하는 회원이라면 그 사람이 가지고있는 계좌 쭉 보이도록
+
+                    //계좌출력~!~!!
+
                     while (true) {
                         System.out.println("계좌번호: ");
                         int aNumber = sc.nextInt();
@@ -138,7 +141,7 @@ public class AccClerk {
         }
 
     }
-//=========================== ▼ 관리자메뉴 > 6.계좌 개설 및 수정 > 1. 신규 계좌 개설===================================
+//=========================== ▼ 관리자메뉴 > 6.계좌 개설 및 수정 > 1. 신규 계좌 개설 ===================================
 
 
     public void insert() {
@@ -146,7 +149,7 @@ public class AccClerk {
 
         while (true) {
             System.out.println("신규계좌개설");
-            System.out.print("회원번호: ");
+            System.out.print("회원번호: ");         //회원명 받기
             int uIdx = sc.nextInt();
 
             try {
@@ -209,8 +212,8 @@ public class AccClerk {
             System.out.println("예금주 관리");
             System.out.println("""
                     1. 추가
-                    2. 삭제
-                    3. 예금주 조회
+                    2. 삭제           //예금주 한 명만 있을 때는 삭제 못하도록
+                    3. 예금주 조회               
                     4. 뒤로
                     """);
             int uo = sc.nextInt();
@@ -228,7 +231,7 @@ public class AccClerk {
                         rs = pstmt.executeQuery();
 
                         if (rs.next()) {                            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!중복처리 추가
-                            while (true) {  // 회원번호 확인
+                            while (true) {  // 회원번호 확인                  이름 받고 회원번호 출력되게..?
                                 System.out.println("추가할 회원번호: ");
                                 int uIdx = sc.nextInt();
 
@@ -242,7 +245,7 @@ public class AccClerk {
                                         System.out.println("추가되었습니다.");
                                         break;  // 회원번호 끗
                                     } else {
-                                        System.out.println("회원번호 추가에 실패했습니다. 다시 시도해 주세요.");
+                                        System.out.println("회원번호 추가에 실패했습니다.");
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -250,7 +253,7 @@ public class AccClerk {
                             }
                             break;  // 계좌번호 끗
                         } else {
-                            System.out.println("존재하지 않는 계좌입니다. 다시 입력해주세요.");
+                            System.out.println("존재하지 않는 계좌입니다.");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -403,7 +406,7 @@ public class AccClerk {
 
                                 break;  // 계좌번호 입력 종료
                             } else {
-                                System.out.println("기존 비밀번호가 틀렸습니다. 다시 입력해주세요.");
+                                System.out.println("기존 비밀번호가 틀렸습니다.");
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -426,66 +429,66 @@ public class AccClerk {
 
 //=========================== ▼ 관리자메뉴 > 6.계좌 개설 및 수정 > 4.계좌 해지===================================
 
-
-    public void delete() {
-        Scanner sc = new Scanner(System.in);
-
-        while (true) {  // 계좌번호 확인
-            System.out.println("계좌 해지");
-            System.out.println("해지할 계좌번호: ");
-            int aNumber = sc.nextInt();
-
-            try {
-                pstmt = conn.prepareStatement("SELECT * FROM accounts WHERE a_number = ?");
-                pstmt.setInt(1, aNumber);
-                rs = pstmt.executeQuery();
-
-                if (rs.next()) {    // 존재하는 계좌번호라면
-                    while (true) {  // 비밀번호 확인
-                        System.out.println("계좌 비밀번호: ");
-                        int aPassword = sc.nextInt();
-
-                        try {
-                            pstmt = conn.prepareStatement("SELECT * FROM accounts WHERE a_number = ? AND a_password = ?");
-                            pstmt.setInt(1, aNumber);
-                            pstmt.setInt(2, aPassword);
-                            rs = pstmt.executeQuery();
-
-                            if (rs.next()) {    // 비밀번호가 맞다면
-                                try {
-                                    pstmt = conn.prepareStatement("DELETE FROM accounts WHERE a_number = ? AND a_password = ?");
-                                    pstmt.setInt(1, aNumber);
-                                    pstmt.setInt(2, aPassword);
-                                    pstmt.executeUpdate();
-
-                                    System.out.println("정상적으로 해지되었습니다.");
-                                    break;  // 비밀번호 확인끗
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                break;  // 계좌번호 확인끗
-                            } else {
-                                System.out.println("비밀번호가 틀렸습니다. 다시 입력해주세요.");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    //비번계좌 다 끝
-                    break;
-
-                } else {
-                    System.out.println("존재하지 않는 계좌번호입니다. 다시 입력해주세요.");
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
+//
+//    public void delete() {
+//        Scanner sc = new Scanner(System.in);
+//
+//        while (true) {  // 계좌번호 확인
+//            System.out.println("계좌 해지");
+//            System.out.println("해지할 계좌번호: ");
+//            int aNumber = sc.nextInt();
+//
+//            try {
+//                pstmt = conn.prepareStatement("SELECT * FROM accounts WHERE a_number = ?");
+//                pstmt.setInt(1, aNumber);
+//                rs = pstmt.executeQuery();
+//
+//                if (rs.next()) {    // 존재하는 계좌번호라면
+//                    while (true) {  // 비밀번호 확인
+//                        System.out.println("계좌 비밀번호: ");
+//                        int aPassword = sc.nextInt();
+//
+//                        try {
+//                            pstmt = conn.prepareStatement("SELECT * FROM accounts WHERE a_number = ? AND a_password = ?");
+//                            pstmt.setInt(1, aNumber);
+//                            pstmt.setInt(2, aPassword);
+//                            rs = pstmt.executeQuery();
+//
+//                            if (rs.next()) {    // 비밀번호가 맞다면
+//                                try {
+//                                    pstmt = conn.prepareStatement("DELETE FROM accounts WHERE a_number = ? AND a_password = ?");
+//                                    pstmt.setInt(1, aNumber);
+//                                    pstmt.setInt(2, aPassword);
+//                                    pstmt.executeUpdate();
+//
+//                                    System.out.println("정상적으로 해지되었습니다.");
+//                                    break;  // 비밀번호 확인끗
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//
+//                                break;  // 계좌번호 확인끗
+//                            } else {
+//                                System.out.println("비밀번호가 틀렸습니다. 다시 입력해주세요.");
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    //비번계좌 다 끝
+//                    break;
+//
+//                } else {
+//                    System.out.println("존재하지 않는 계좌번호입니다. 다시 입력해주세요.");
+//                }
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
 
 }
 
