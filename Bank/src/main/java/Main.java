@@ -49,12 +49,13 @@ class CustomerMenu2 {
                     break;
 
                 case 4:
-                    customerDBRepository.custInfoEdit();
-                    customerDBRepository.custInfo();
+                    int num3 = customerDBRepository.custInfoEdit();
+                    customerDBRepository.custInfo(num3);
                     break;
             }
             System.out.println();
             if (num2 == 5)
+                System.out.println("종료되었습니다.");
                 break;
         }
     }

@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -96,7 +95,42 @@ public class CustomerDBRepository {
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("입력이 잘못되었습니다.");
+        }
+    }
+
+    // 직원 -> 고객 정보 조회2
+    public void custInfo(int num3) {
+        Scanner scan = new Scanner(System.in);
+        try(Connection conn = DriverManager.getConnection
+                ("jdbc:mysql://192.168.0.53:8888/Bank",
+                        "root", "1234")) {
+
+            PreparedStatement pstmt2 = conn.prepareStatement("select * from users where u_idx = ?");
+            int u_idx = num3;
+            pstmt2.setInt(1, u_idx);
+            ResultSet rs2 = pstmt2.executeQuery();
+            while (rs2.next()) {
+                System.out.println("""
+                                <고객 정보>
+                                은행고유번호 = %d
+                                권한 = %s
+                                아이디 = %s
+                                비밀번호 = %s
+                                이름 = %s
+                                전화번호 = %s
+                                """.formatted(
+                                rs2.getInt("u_idx"),
+                                rs2.getString("u_level"),
+                                rs2.getString("u_id"),
+                                rs2.getString("u_password"),
+                                rs2.getString("u_name"),
+                                rs2.getString("u_phone")
+                        )
+                );
+            }
+        } catch (Exception e) {
+            System.out.println("입력이 잘못되었습니다.");
         }
     }
 
@@ -159,7 +193,7 @@ public class CustomerDBRepository {
                     UPDATE users SET u_phone = ? WHERE u_idx = ?
                     """);
                     String pn = scan.next();
-                    pstmt.setString(4, pn);
+                    pstmt.setString(1, pn);
                     pstmt.setInt(2, u_idx);
                     break;
             }
@@ -169,13 +203,13 @@ public class CustomerDBRepository {
             System.out.println();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("입력이 잘못되었습니다.");
         }
     }
 
     // 직원 -> 고객 정보 수정
-    public void custInfoEdit() {
-
+    public int custInfoEdit() {
+        int u_idx2 = 0;
         try(Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank","root",
                         "1234")){
@@ -204,7 +238,7 @@ public class CustomerDBRepository {
                     정보를 수정할 고객의 은행고유번호를 선택해주세요.
                     """);
             pstmt = conn.prepareStatement("select u_name from users where u_idx = ?");
-            int u_idx2 = scan.nextInt();
+            u_idx2 = scan.nextInt();
             pstmt.setInt(1,u_idx2);
             rs = pstmt.executeQuery();
             rs.next();
@@ -224,7 +258,7 @@ public class CustomerDBRepository {
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_id = ? WHERE u_idx = ?
                     """);
-                    String id = scan.nextLine();
+                    String id = scan.next();
                     pstmt.setString(1, id);
                     pstmt.setInt(2, u_idx2);
                     break;
@@ -234,8 +268,8 @@ public class CustomerDBRepository {
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_password = ? WHERE u_idx = ?
                     """);
-                    int pw = scan.nextInt();
-                    pstmt.setInt(1, pw);
+                    String pw = scan.next();
+                    pstmt.setString(1, pw);
                     pstmt.setInt(2, u_idx2);
                     break;
 
@@ -244,7 +278,7 @@ public class CustomerDBRepository {
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_name = ? WHERE u_idx = ?
                     """);
-                    String name2 = scan.nextLine();
+                    String name2 = scan.next();
                     pstmt.setString(1, name2);
                     pstmt.setInt(2, u_idx2);
                     break;
@@ -254,17 +288,20 @@ public class CustomerDBRepository {
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_phone = ? WHERE u_idx = ?
                     """);
-                    String pn = scan.nextLine();
-                    pstmt.setString(4, pn);
+                    String pn = scan.next();
+                    pstmt.setString(1, pn);
                     pstmt.setInt(2, u_idx2);
                     break;
             }
 
             pstmt.executeUpdate();
             System.out.println("수정이 완료되었습니다.");
+            System.out.println();
 
         } catch (Exception e) {
             e.printStackTrace();
+//            System.out.println("입력이 잘못되었습니다.");
         }
+        return u_idx2;
     }
 }
