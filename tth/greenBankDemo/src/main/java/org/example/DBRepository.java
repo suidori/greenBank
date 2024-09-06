@@ -15,93 +15,13 @@ public class DBRepository {
         this.u_idx = u_idx;
     }
 
-    public void myPage() {
-        try {
-            Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://192.168.0.53:8888/Bank",
-                    "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from users where u_id = (?)");
-            System.out.print("조회할 아이디를 입력하세요 : ");
-            String usersID = scan.nextLine();
-            pstmt.setString(1, usersID);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                System.out.println("""
-                        아이디 = %s
-                        비밀번호 = %s
-                        이름 = %s
-                        전화번호 = %s
-                        """.formatted(
-                        rs.getString("u_id"),
-                        rs.getString("u_password"),
-                        rs.getString("u_name"),
-                        rs.getString("u_phone")));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void editInformation() {
-        try {
-            Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://192.168.0.53:8888/Bank",
-                    "root",
-                    "1234");
-            PreparedStatement pstmt = conn.prepareStatement("update users set u_password = ?,u_phone =? where u_id = ?");
-
-            System.out.print("아이디를 입력하세요 : ");
-            String usersID = scan.nextLine();
-            pstmt.setString(3, usersID);
-            System.out.print("변경 비밀번호: ");
-            String password = scan.nextLine();
-            pstmt.setString(1, password);
-            System.out.print("변경 연락처: ");
-            String phoneNum = scan.nextLine();
-            pstmt.setString(2, phoneNum);
-            System.out.println("변경 완료 되었습니다.");
-
-            pstmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-    }
-
-    public void checkMyAccount() {
-        try {
-            Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/GreenBank",
-                    "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from Users where u_id = (?)");
-            System.out.print("조회할 아이디를 입력하세요 : ");
-            String usersID = scan.nextLine();
-            pstmt.setString(1, usersID);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                System.out.println("""
-                        아이디 = %s
-                        비밀번호 = %s
-                        이름 = %s
-                        전화번호 = %s
-                        """.formatted(
-                        rs.getString("u_id"),
-                        rs.getString("u_password"),
-                        rs.getString("u_name"),
-                        rs.getString("u_phone")));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void depositWithdraw () {
         //중간중간 3.취소 넣기
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
-            PreparedStatement pstmt = conn.prepareStatement("select * from owners where u_idx = 10");
+            PreparedStatement pstmt = conn.prepareStatement("select * from owners where u_idx = ?");
+            pstmt.setInt(1, u_idx);
             boolean done = false;
             while(!done) {
                 int accountNumbers;
