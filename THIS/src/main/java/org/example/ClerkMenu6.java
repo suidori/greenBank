@@ -15,7 +15,7 @@ public class ClerkMenu6 {
     private String accMenu = """
             [계좌 관리]
             1. 신규 계좌 개설
-            2. 예금주 수정
+            2. 예금주 관리
             3. 계좌 비밀번호 변경
             4. 계좌 해지
             5. 뒤로
@@ -43,8 +43,7 @@ public class ClerkMenu6 {
                 accClerk.delete();
                 break;
             } else {
-//                ClerkMenu.c_main();
-                break;
+                ClerkMenu.c_main();
 
             }
 
