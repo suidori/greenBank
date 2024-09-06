@@ -97,6 +97,7 @@ public class DBRepository {
     }
 
     public void depositWithdraw () {
+        //중간중간 3.취소 넣기
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.0.53:8888/Bank",
                     "root", "1234");
