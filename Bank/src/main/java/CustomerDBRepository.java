@@ -2,9 +2,30 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CustomerDBRepository {
+    //해야할 것 : 수정기능에서 입력했을 때 올바른 데이터인지 검증하기, 직원만 직원기능 이용할 수 있게 하기
+
+    // 직원 idx 검증
+    boolean clerkIdx(int num) {
+        boolean answer;
+        try (Connection conn = DriverManager.getConnection
+                ("jdbc:mysql://192.168.0.53:8888/Bank",
+                        "root", "1234")) {
+            PreparedStatement pstmt = conn.prepareStatement("select u_idx from users where u_level = clerk");
+            ResultSet rs = pstmt.executeQuery();
+            // list stream 만들어서 비교하기
+            while (rs.next()) {
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return answer;
+    }
 
     // 나의 정보 조회(마이페이지)
     public void myPage(int u_idx) {
@@ -21,15 +42,11 @@ public class CustomerDBRepository {
             while (rs.next()) {
                 System.out.println("""
                                 <마이페이지>
-                                은행고유번호 = %d
-                                권한 = %s
                                 아이디 = %s
                                 비밀번호 = %s
                                 이름 = %s
                                 전화번호 = %s
                                 """.formatted(
-                                rs.getInt("u_idx"),
-                                rs.getString("u_level"),
                                 rs.getString("u_id"),
                                 rs.getString("u_password"),
                                 rs.getString("u_name"),
@@ -43,11 +60,12 @@ public class CustomerDBRepository {
     }
 
     // 직원 -> 고객 정보 조회
-    public void custInfo() {
+    public void custInfo(boolean answer) {
         Scanner scan = new Scanner(System.in);
         try(Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank",
                         "root", "1234")) {
+            if (num1 == )
 
             System.out.println("""
                     정보를 열람할 고객의 이름을 입력하세요.
@@ -95,7 +113,10 @@ public class CustomerDBRepository {
                 );
             }
         } catch (Exception e) {
-            System.out.println("입력이 잘못되었습니다.");
+            System.out.println("""
+                입력이 잘못되었습니다.
+                다시 입력 바랍니다.
+                """);
         }
     }
 
@@ -130,7 +151,10 @@ public class CustomerDBRepository {
                 );
             }
         } catch (Exception e) {
-            System.out.println("입력이 잘못되었습니다.");
+            System.out.println("""
+                입력이 잘못되었습니다.
+                다시 입력 바랍니다.
+                """);
         }
     }
 
@@ -208,7 +232,7 @@ public class CustomerDBRepository {
     }
 
     // 직원 -> 고객 정보 수정
-    public int custInfoEdit() {
+    public int custInfoEdit(boolean answer) {
         int u_idx2 = 0;
         try(Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank","root",
