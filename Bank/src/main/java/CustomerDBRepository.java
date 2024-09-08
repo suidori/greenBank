@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CustomerDBRepository {
-    //해야할 것 : 수정기능에서 입력했을 때 올바른 데이터인지 검증
     // password 자료형 확인
 
     // 직원 idx 검증
@@ -30,6 +29,59 @@ public class CustomerDBRepository {
         }
         return answer;
     }
+
+    // 아이디 수정 검증
+    boolean idCheck(String str){
+        char cha;
+        for (int i = 0; i < str.length(); i++) {
+            cha = str.charAt(i);
+            if (cha >= 0x61 && cha <= 0x7A){
+                // 영어 소문자
+            } else if (cha >= 0x41 && cha <= 0x5A) {
+                // 영어 대문자
+            } else if (cha >= 0x30 && cha <= 0x39) {
+                // 숫자
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 이름 수정 검증
+    boolean nameCheck(String str){
+        char cha;
+        for (int i = 0; i < str.length(); i++) {
+            cha = str.charAt(i);
+            if (cha >= 0x61 && cha <= 0x7A){
+                // 영어 소문자
+            } else if (cha >= 0x41 && cha <= 0x5A) {
+                // 영어 대문자
+            } else if (cha >= 44032 && cha <= 55203) {
+                // 한글
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 핸드폰 번호 수정 검증
+    boolean phoneCheck(String str){
+        char cha;
+        for (int i = 0; i < str.length(); i++) {
+            cha = str.charAt(i);
+            if (cha == 0x2D){
+                // -
+            } else if (cha >= 0x30 && cha <= 0x39) {
+                // 숫자
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     // 나의 정보 조회(마이페이지)
     public void myPage(int u_idx) {
@@ -198,14 +250,22 @@ public class CustomerDBRepository {
                     UPDATE users SET u_id = ? WHERE u_idx = ?
                     """);
                     String id = scan.next();
-                    if (id.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
+                    if (idCheck(id)) {
+                        if (id.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, id);
+                            pstmt.setInt(2, u_idx);
+                            break;
+                        }
                     }
                     else {
-                        pstmt.setString(1, id);
-                        pstmt.setInt(2, u_idx);
-                    break;
+                        System.out.println("""
+                                영어와 숫자만 가능합니다.
+                                종료됩니다.
+                                """);
+                        break;
                     }
 
                 case 2:
@@ -224,13 +284,21 @@ public class CustomerDBRepository {
                     UPDATE users SET u_name = ? WHERE u_idx = ?
                     """);
                     String name = scan.next();
-                    if (name.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
+                    if (nameCheck(name)) {
+                        if (name.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, name);
+                            pstmt.setInt(2, u_idx);
+                            break;
+                        }
                     }
                     else {
-                        pstmt.setString(1, name);
-                        pstmt.setInt(2, u_idx);
+                        System.out.println("""
+                                한글과 영어만 가능합니다.
+                                종료됩니다.
+                                """);
                         break;
                     }
 
@@ -240,13 +308,20 @@ public class CustomerDBRepository {
                     UPDATE users SET u_phone = ? WHERE u_idx = ?
                     """);
                     String pn = scan.next();
-                    if (pn.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
-                    }
-                    else {
-                        pstmt.setString(1, pn);
-                        pstmt.setInt(2, u_idx);
+                    if (phoneCheck(pn)) {
+                        if (pn.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, pn);
+                            pstmt.setInt(2, u_idx);
+                            break;
+                        }
+                    }else {
+                        System.out.println("""
+                                숫자와 - 만 가능합니다.
+                                종료됩니다.
+                                """);
                         break;
                     }
             }
@@ -309,23 +384,30 @@ public class CustomerDBRepository {
                 case 1:
                     System.out.println("수정할 아이디를 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_id = ? WHERE u_idx = ?
+                    UPDATE users SET u_id = ? WHERE u_idx = ? and u_level != clerk
                     """);
                     String id = scan.next();
-                    if (id.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
-                    }
-                    else {
-                        pstmt.setString(1, id);
-                        pstmt.setInt(2, u_idx2);
+                    if (idCheck(id)) {
+                        if (id.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, id);
+                            pstmt.setInt(2, u_idx2);
+                            break;
+                        }
+                    }else {
+                        System.out.println("""
+                                영어와 숫자만 가능합니다.
+                                종료됩니다.
+                                """);
                         break;
                     }
 
                 case 2:
                     System.out.println("수정할 비밀번호를 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_password = ? WHERE u_idx = ?
+                    UPDATE users SET u_password = ? WHERE u_idx = ? and u_level != clerk
                     """);
                     String pw = scan.next();
                     if (pw.contains(" ")){
@@ -341,32 +423,47 @@ public class CustomerDBRepository {
                 case 3:
                     System.out.println("수정할 이름을 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_name = ? WHERE u_idx = ?
+                    UPDATE users SET u_name = ? WHERE u_idx = ? and u_level != clerk
                     """);
                     String name2 = scan.next();
-                    if (name2.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
+                    if (nameCheck(name2)) {
+                        if (name2.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, name2);
+                            pstmt.setInt(2, u_idx2);
+                            break;
+                        }
                     }
                     else {
-                        pstmt.setString(1, name2);
-                        pstmt.setInt(2, u_idx2);
+                        System.out.println("""
+                                한글과 영어만 가능합니다.
+                                종료됩니다.
+                                """);
                         break;
                     }
 
                 case 4:
                     System.out.println("수정할 핸드폰번호를(-까지 입력해주세요)");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_phone = ? WHERE u_idx = ?
+                    UPDATE users SET u_phone = ? WHERE u_idx = ? and u_level != clerk
                     """);
                     String pn = scan.next();
-                    if (pn.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
-                    }
-                    else {
-                        pstmt.setString(1, pn);
-                        pstmt.setInt(2, u_idx2);
+                    if (phoneCheck(pn)) {
+                        if (pn.contains(" ")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, pn);
+                            pstmt.setInt(2, u_idx2);
+                            break;
+                        }
+                    }else {
+                        System.out.println("""
+                                숫자와 - 만 가능합니다.
+                                종료됩니다.
+                                """);
                         break;
                     }
             }
@@ -377,7 +474,10 @@ public class CustomerDBRepository {
 
         } catch (Exception e) {
             e.printStackTrace();
-//            System.out.println("입력이 잘못되었습니다.");
+            System.out.println("""
+                    실패하였습니다.
+                    (같은 직원의 정보를 수정할 수 없습니다.)
+                    """);
         }
         }
         else {
