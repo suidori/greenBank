@@ -52,13 +52,14 @@ class CustomerMenu2 {
                 case 4:
                     answer = customerDBRepository.clerkIdx(num1);
                     int num3 = customerDBRepository.custInfoEdit(answer);
-                    customerDBRepository.custInfo(num3);
+                    if (num3 != 0)
+                        customerDBRepository.custInfo(num3);
                     break;
             }
             System.out.println();
             if (num2 == 5)
                 System.out.println("종료되었습니다.");
-                break;
+            break;
         }
     }
 }
