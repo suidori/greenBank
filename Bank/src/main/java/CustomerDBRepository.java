@@ -130,6 +130,9 @@ public class CustomerDBRepository {
                 String name = scan.nextLine();
                 pstmt1.setString(1, name);
                 ResultSet rs = pstmt1.executeQuery();
+
+//                List<Integer> test = List.of();
+
                 while (rs.next()) {
                     System.out.println("""
                             이름 = %s
@@ -140,6 +143,7 @@ public class CustomerDBRepository {
                             rs.getInt("u_idx"),
                             rs.getString("u_id")
                     ));
+//                    test.add(rs.getInt("u_idx"));
                 }
 
                 System.out.println("""
@@ -147,6 +151,9 @@ public class CustomerDBRepository {
                         """);
                 PreparedStatement pstmt2 = conn.prepareStatement("select * from users where u_idx = ?");
                 int u_idx = scan.nextInt();
+//                if(test.contains(u_idx)){
+//                    System.out.println("여기 진행");
+//                }
                 pstmt2.setInt(1, u_idx);
                 ResultSet rs2 = pstmt2.executeQuery();
                 while (rs2.next()) {
