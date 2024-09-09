@@ -12,6 +12,8 @@ public class Main {
         main.start();
     }
         public void start(){
+        int flag = 1;
+        while (true){
             try {
                 System.out.println("""
                 할 것을 입력하세요
@@ -22,16 +24,20 @@ public class Main {
 //                    case 2 -> dbRepository.editInformation();
 //                    case 3 -> dbRepository.checkMyAccount();
                     case 4 -> dbRepository.depositWithdraw();
-                    case 5 -> System.out.println("프로그램을 종료합니다");
-
+                    case 5 -> {
+                        System.out.println("프로그램을 종료합니다");
+                        flag = 0;
+                    }
                 }
-
             }catch (InputMismatchException e){
                 System.out.println("숫자만 입력하세요, 재시작 합니다");
                 scan.nextLine();
                 start();
-
             }
+        if(flag == 0){
+           break;
         }
+       }
+    }
 
 }
