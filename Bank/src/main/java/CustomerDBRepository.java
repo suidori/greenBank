@@ -7,28 +7,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CustomerDBRepository {
-    // 같은 직원의 정보를 수정하지 못하도록 하기
-
-    // 직원 idx 검증
-    boolean clerkIdx(int num) {
-        boolean answer = false;
-        try (Connection conn = DriverManager.getConnection
-                ("jdbc:mysql://192.168.0.53:8888/Bank",
-                        "root", "1234")) {
-            PreparedStatement pstmt = conn.prepareStatement("select u_idx from users where u_level = 'clerk'");
-            ResultSet rs = pstmt.executeQuery();
-            List<Integer> list = new ArrayList<>();
-            while (rs.next()) {
-                list.add(rs.getInt("u_idx"));
-            }
-            if (list.contains(num)){
-                answer = true;
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return answer;
-    }
 
     // 아이디 수정 검증
     boolean idCheck(String str){
@@ -188,44 +166,6 @@ public class CustomerDBRepository {
                         직원 확인에 실패했습니다.
                         다시 시도해주세요.
                         """);
-        }
-    }
-
-    // 직원 -> 고객 정보 조회2
-    public void custInfo(int num3) {
-        Scanner scan = new Scanner(System.in);
-        try(Connection conn = DriverManager.getConnection
-                ("jdbc:mysql://192.168.0.53:8888/Bank",
-                        "root", "1234")) {
-
-            PreparedStatement pstmt2 = conn.prepareStatement("select * from users where u_idx = ?");
-            int u_idx = num3;
-            pstmt2.setInt(1, u_idx);
-            ResultSet rs2 = pstmt2.executeQuery();
-            while (rs2.next()) {
-                System.out.println("""
-                                <고객 정보>
-                                은행고유번호 = %d
-                                권한 = %s
-                                아이디 = %s
-                                비밀번호 = %s
-                                이름 = %s
-                                전화번호 = %s
-                                """.formatted(
-                                rs2.getInt("u_idx"),
-                                rs2.getString("u_level"),
-                                rs2.getString("u_id"),
-                                rs2.getString("u_password"),
-                                rs2.getString("u_name"),
-                                rs2.getString("u_phone")
-                        )
-                );
-            }
-        } catch (Exception e) {
-            System.out.println("""
-                입력이 잘못되었습니다.
-                다시 입력 바랍니다.
-                """);
         }
     }
 
