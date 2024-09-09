@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CustomerDBRepository {
-    // password 자료형 확인
+    // 같은 직원의 정보를 수정하지 못하도록 하기
 
     // 직원 idx 검증
     boolean clerkIdx(int num) {
@@ -15,7 +15,7 @@ public class CustomerDBRepository {
         try (Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank",
                         "root", "1234")) {
-            PreparedStatement pstmt = conn.prepareStatement("select u_idx from users where u_level = clerk");
+            PreparedStatement pstmt = conn.prepareStatement("select u_idx from users where u_level = 'clerk'");
             ResultSet rs = pstmt.executeQuery();
             List<Integer> list = new ArrayList<>();
             while (rs.next()) {
@@ -249,81 +249,89 @@ public class CustomerDBRepository {
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_id = ? WHERE u_idx = ?
                     """);
-                    String id = scan.next();
-                    if (idCheck(id)) {
+                    scan.nextLine();
+                    String id = scan.nextLine();
                         if (id.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, id);
-                            pstmt.setInt(2, u_idx);
-                            break;
+                            if (idCheck(id)) {
+                                pstmt.setString(1, id);
+                                pstmt.setInt(2, u_idx);
+                                break;
+                            } else {
+                                System.out.println("""
+                                        영어와 숫자만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }
-                    else {
-                        System.out.println("""
-                                영어와 숫자만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
 
                 case 2:
                     System.out.println("수정할 비밀번호를 입력해주세요.");
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_password = ? WHERE u_idx = ?
                     """);
-                    int pw = scan.nextInt();
-                    pstmt.setInt(1, pw);
-                    pstmt.setInt(2, u_idx);
-                    break;
+                    scan.nextLine();
+                    String pw = scan.nextLine();
+                    if (pw.contains(" ")){
+                        System.out.println("공백이 포함되어 강제종료됩니다.");
+                        break;
+                    } else {
+                        pstmt.setString(1, pw);
+                        pstmt.setInt(2, u_idx);
+                        break;
+                    }
 
                 case 3:
                     System.out.println("수정할 이름을 입력해주세요.");
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_name = ? WHERE u_idx = ?
                     """);
-                    String name = scan.next();
-                    if (nameCheck(name)) {
+                    scan.nextLine();
+                    String name = scan.nextLine();
                         if (name.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, name);
-                            pstmt.setInt(2, u_idx);
-                            break;
+                            if (nameCheck(name)) {
+                                pstmt.setString(1, name);
+                                pstmt.setInt(2, u_idx);
+                                break;
+                            } else {
+                                System.out.println("""
+                                        한글과 영어만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }
-                    else {
-                        System.out.println("""
-                                한글과 영어만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
 
                 case 4:
                     System.out.println("수정할 핸드폰번호를 - 포함하여 입력해주세요.");
                     pstmt = conn.prepareStatement("""
                     UPDATE users SET u_phone = ? WHERE u_idx = ?
                     """);
-                    String pn = scan.next();
-                    if (phoneCheck(pn)) {
+                    scan.nextLine();
+                    String pn = scan.nextLine();
                         if (pn.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, pn);
-                            pstmt.setInt(2, u_idx);
-                            break;
+                            if (phoneCheck(pn)) {
+                                pstmt.setString(1, pn);
+                                pstmt.setInt(2, u_idx);
+                                break;
+
+                            } else {
+                                System.out.println("""
+                                        숫자와 - 만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }else {
-                        System.out.println("""
-                                숫자와 - 만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
             }
             pstmt.executeUpdate();
             System.out.println("수정이 완료되었습니다.");
@@ -384,30 +392,31 @@ public class CustomerDBRepository {
                 case 1:
                     System.out.println("수정할 아이디를 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_id = ? WHERE u_idx = ? and u_level != clerk
+                    UPDATE users SET u_id = ? WHERE u_idx = ? and u_level != "clerk"
                     """);
                     String id = scan.next();
-                    if (idCheck(id)) {
+
                         if (id.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, id);
-                            pstmt.setInt(2, u_idx2);
-                            break;
+                            if (idCheck(id)) {
+                                pstmt.setString(1, id);
+                                pstmt.setInt(2, u_idx2);
+                                break;
+                            } else {
+                                System.out.println("""
+                                        영어와 숫자만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }else {
-                        System.out.println("""
-                                영어와 숫자만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
 
                 case 2:
                     System.out.println("수정할 비밀번호를 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_password = ? WHERE u_idx = ? and u_level != clerk
+                    UPDATE users SET u_password = ? WHERE u_idx = ? and u_level != "clerk"
                     """);
                     String pw = scan.next();
                     if (pw.contains(" ")){
@@ -423,53 +432,56 @@ public class CustomerDBRepository {
                 case 3:
                     System.out.println("수정할 이름을 입력해주세요.");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_name = ? WHERE u_idx = ? and u_level != clerk
+                    UPDATE users SET u_name = ? WHERE u_idx = ? and u_level != "clerk"
                     """);
                     String name2 = scan.next();
-                    if (nameCheck(name2)) {
                         if (name2.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, name2);
-                            pstmt.setInt(2, u_idx2);
-                            break;
+                            if (nameCheck(name2)) {
+                                pstmt.setString(1, name2);
+                                pstmt.setInt(2, u_idx2);
+                                break;
+                            } else {
+                                System.out.println("""
+                                        한글과 영어만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }
-                    else {
-                        System.out.println("""
-                                한글과 영어만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
 
                 case 4:
                     System.out.println("수정할 핸드폰번호를(-까지 입력해주세요)");
                     pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_phone = ? WHERE u_idx = ? and u_level != clerk
+                    UPDATE users SET u_phone = ? WHERE u_idx = ? and u_level != "clerk"
                     """);
                     String pn = scan.next();
-                    if (phoneCheck(pn)) {
                         if (pn.contains(" ")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
-                            pstmt.setString(1, pn);
-                            pstmt.setInt(2, u_idx2);
-                            break;
+                            if (phoneCheck(pn)) {
+                                pstmt.setString(1, pn);
+                                pstmt.setInt(2, u_idx2);
+                                break;
+                            } else {
+                                System.out.println("""
+                                        숫자와 - 만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                                break;
+                            }
                         }
-                    }else {
-                        System.out.println("""
-                                숫자와 - 만 가능합니다.
-                                종료됩니다.
-                                """);
-                        break;
-                    }
             }
 
             pstmt.executeUpdate();
-            System.out.println("수정이 완료되었습니다.");
+            System.out.println("""
+                수정이 완료되었습니다.
+                (같은 직원의 정보는 수정할 수 없으므로 변경되지 않습니다.
+                 직원일 경우 내 정보 수정에서 수정하시길 바랍니다.)
+                """);
             System.out.println();
 
         } catch (Exception e) {
