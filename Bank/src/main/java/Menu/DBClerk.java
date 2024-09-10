@@ -282,6 +282,8 @@ public class DBClerk {
         return 0;
     }
 
+    //계좌 조회
+
     //입금/출금
     public void depositWithdraw() {
         int u_idx2;
@@ -512,6 +514,7 @@ public class DBClerk {
         }
     }
 
+    //계좌 관리
 
     private String getValidInput(Scanner sc, String prompt, Validator validator, String query) throws SQLException {
         String input;
