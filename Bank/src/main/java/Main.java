@@ -39,8 +39,7 @@ class CustomerMenu2 {
                     break;
 
                 case 2:
-                    boolean answer = customerDBRepository.clerkIdx(num1);
-                    customerDBRepository.custInfo(answer);
+                    customerDBRepository.custInfo();
                     break;
 
                 case 3:
@@ -50,10 +49,9 @@ class CustomerMenu2 {
                     break;
 
                 case 4:
-                    answer = customerDBRepository.clerkIdx(num1);
-                    int num3 = customerDBRepository.custInfoEdit(answer);
+                    int num3 = customerDBRepository.custInfoEdit();
                     if (num3 != 0)
-                        customerDBRepository.custInfo(num3);
+                        customerDBRepository.myPage(num3);
                     break;
             }
             System.out.println();

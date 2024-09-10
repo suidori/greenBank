@@ -76,11 +76,13 @@ public class CustomerDBRepository {
             while (rs.next()) {
                 System.out.println("""
                                 <마이페이지>
+                                은행고유번호 = %d
                                 아이디 = %s
                                 비밀번호 = %s
                                 이름 = %s
                                 전화번호 = %s
                                 """.formatted(
+                                rs.getInt("u_idx"),
                                 rs.getString("u_id"),
                                 rs.getString("u_password"),
                                 rs.getString("u_name"),
@@ -94,9 +96,8 @@ public class CustomerDBRepository {
     }
 
     // 직원 -> 고객 정보 조회
-    public void custInfo(boolean answer) {
+    public void custInfo() {
         Scanner scan = new Scanner(System.in);
-        if (answer == true) {
             try(Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank",
                         "root", "1234")) {
@@ -104,13 +105,14 @@ public class CustomerDBRepository {
                 System.out.println("""
                         정보를 열람할 고객의 이름을 입력하세요.
                         """);
-                PreparedStatement pstmt1 = conn.prepareStatement("select u_name, u_id, u_idx from users where u_name = ?");
+                PreparedStatement pstmt1 = conn.prepareStatement("""
+                select u_name, u_id, u_idx from users where u_name = ? and u_level = "customer"
+                """);
                 String name = scan.nextLine();
                 pstmt1.setString(1, name);
                 ResultSet rs = pstmt1.executeQuery();
 
-//                List<Integer> test = List.of();
-
+                List<Integer> test = List.of();
                 while (rs.next()) {
                     System.out.println("""
                             이름 = %s
@@ -121,7 +123,7 @@ public class CustomerDBRepository {
                             rs.getInt("u_idx"),
                             rs.getString("u_id")
                     ));
-//                    test.add(rs.getInt("u_idx"));
+                    test.add(rs.getInt("u_idx"));
                 }
 
                 System.out.println("""
@@ -129,29 +131,31 @@ public class CustomerDBRepository {
                         """);
                 PreparedStatement pstmt2 = conn.prepareStatement("select * from users where u_idx = ?");
                 int u_idx = scan.nextInt();
-//                if(test.contains(u_idx)){
-//                    System.out.println("여기 진행");
-//                }
-                pstmt2.setInt(1, u_idx);
-                ResultSet rs2 = pstmt2.executeQuery();
-                while (rs2.next()) {
+                if(test.contains(u_idx)) {
+                    pstmt2.setInt(1, u_idx);
+                    ResultSet rs2 = pstmt2.executeQuery();
+                    while (rs2.next()) {
+                        System.out.println("""
+                                        <고객 정보>
+                                        은행고유번호 = %d
+                                        아이디 = %s
+                                        비밀번호 = %s
+                                        이름 = %s
+                                        전화번호 = %s
+                                        """.formatted(
+                                        rs2.getInt("u_idx"),
+                                        rs2.getString("u_id"),
+                                        rs2.getString("u_password"),
+                                        rs2.getString("u_name"),
+                                        rs2.getString("u_phone")
+                                )
+                        );
+                    }
+                }else {
                     System.out.println("""
-                                    <고객 정보>
-                                    은행고유번호 = %d
-                                    권한 = %s
-                                    아이디 = %s
-                                    비밀번호 = %s
-                                    이름 = %s
-                                    전화번호 = %s
-                                    """.formatted(
-                                    rs2.getInt("u_idx"),
-                                    rs2.getString("u_level"),
-                                    rs2.getString("u_id"),
-                                    rs2.getString("u_password"),
-                                    rs2.getString("u_name"),
-                                    rs2.getString("u_phone")
-                            )
-                    );
+                            고객의 정보와 일치하지 않습니다.
+                            다시 확인 바랍니다.
+                            """);
                 }
 
             } catch (Exception e) {
@@ -160,13 +164,6 @@ public class CustomerDBRepository {
                 다시 입력 바랍니다.
                 """);
             }
-        }
-        else {
-            System.out.println("""
-                        직원 확인에 실패했습니다.
-                        다시 시도해주세요.
-                        """);
-        }
     }
 
     // 본인 정보 수정
@@ -198,7 +195,7 @@ public class CustomerDBRepository {
                     """);
                     scan.nextLine();
                     String id = scan.nextLine();
-                        if (id.contains(" ")) {
+                        if (id.contains(" ") || id.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -222,13 +219,21 @@ public class CustomerDBRepository {
                     """);
                     scan.nextLine();
                     String pw = scan.nextLine();
-                    if (pw.contains(" ")){
+                    if (pw.contains(" ") || pw.contains("")){
                         System.out.println("공백이 포함되어 강제종료됩니다.");
                         break;
                     } else {
-                        pstmt.setString(1, pw);
-                        pstmt.setInt(2, u_idx);
-                        break;
+                        if (idCheck(pw)) {
+                            pstmt.setString(1, pw);
+                            pstmt.setInt(2, u_idx);
+                            break;
+                        }else {
+                            System.out.println("""
+                                        영어와 숫자만 가능합니다.
+                                        종료됩니다.
+                                        """);
+                            break;
+                        }
                     }
 
                 case 3:
@@ -238,7 +243,7 @@ public class CustomerDBRepository {
                     """);
                     scan.nextLine();
                     String name = scan.nextLine();
-                        if (name.contains(" ")) {
+                        if (name.contains(" ") || name.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -262,7 +267,7 @@ public class CustomerDBRepository {
                     """);
                     scan.nextLine();
                     String pn = scan.nextLine();
-                        if (pn.contains(" ")) {
+                        if (pn.contains(" ") || pn.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -290,9 +295,8 @@ public class CustomerDBRepository {
     }
 
     // 직원 -> 고객 정보 수정
-    public int custInfoEdit(boolean answer) {
+    public int custInfoEdit() {
         int u_idx2 = 0;
-        if (answer == true) {
         try(Connection conn = DriverManager.getConnection
                 ("jdbc:mysql://192.168.0.53:8888/Bank","root",
                         "1234")){
@@ -305,6 +309,7 @@ public class CustomerDBRepository {
             String name = scan.nextLine();
             pstmt.setString(1,name);
             ResultSet rs = pstmt.executeQuery();
+            List<Integer> test = List.of();
             while (rs.next()){
                 System.out.println("""
                     이름 = %s
@@ -315,6 +320,7 @@ public class CustomerDBRepository {
                         rs.getInt("u_idx"),
                         rs.getString("u_id")
                 ));
+                test.add(rs.getInt("u_idx"));
             }
 
             System.out.println("""
@@ -322,28 +328,29 @@ public class CustomerDBRepository {
                     """);
             pstmt = conn.prepareStatement("select u_name from users where u_idx = ?");
             u_idx2 = scan.nextInt();
-            pstmt.setInt(1,u_idx2);
-            rs = pstmt.executeQuery();
-            rs.next();
-            System.out.println("""
-                    <%s 고객님> 수정할 정보의 번호를 입력해주세요.
-                    1. 아이디
-                    2. 비밀번호
-                    3. 이름
-                    4. 핸드폰번호
-                    """.formatted(rs.getString("u_name")));
+            if(test.contains(u_idx2)) {
+                pstmt.setInt(1, u_idx2);
+                rs = pstmt.executeQuery();
+                rs.next();
+                System.out.println("""
+                        <%s 고객님> 수정할 정보의 번호를 입력해주세요.
+                        1. 아이디
+                        2. 비밀번호
+                        3. 이름
+                        4. 핸드폰번호
+                        """.formatted(rs.getString("u_name")));
 
-            int cho = scan.nextInt();
+                int cho = scan.nextInt();
 
-            switch (cho){
-                case 1:
-                    System.out.println("수정할 아이디를 입력해주세요.");
-                    pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_id = ? WHERE u_idx = ? and u_level != "clerk"
-                    """);
-                    String id = scan.next();
+                switch (cho) {
+                    case 1:
+                        System.out.println("수정할 아이디를 입력해주세요.");
+                        pstmt = conn.prepareStatement("""
+                                UPDATE users SET u_id = ? WHERE u_idx = ?
+                                """);
+                        String id = scan.next();
 
-                        if (id.contains(" ")) {
+                        if (id.contains(" ") || id.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -360,29 +367,28 @@ public class CustomerDBRepository {
                             }
                         }
 
-                case 2:
-                    System.out.println("수정할 비밀번호를 입력해주세요.");
-                    pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_password = ? WHERE u_idx = ? and u_level != "clerk"
-                    """);
-                    String pw = scan.next();
-                    if (pw.contains(" ")){
-                        System.out.println("공백이 포함되어 강제종료됩니다.");
-                        break;
-                    }
-                    else {
-                        pstmt.setString(1, pw);
-                        pstmt.setInt(2, u_idx2);
-                        break;
-                    }
+                    case 2:
+                        System.out.println("수정할 비밀번호를 입력해주세요.");
+                        pstmt = conn.prepareStatement("""
+                                UPDATE users SET u_password = ? WHERE u_idx = ?
+                                """);
+                        String pw = scan.next();
+                        if (pw.contains(" ") || pw.contains("")) {
+                            System.out.println("공백이 포함되어 강제종료됩니다.");
+                            break;
+                        } else {
+                            pstmt.setString(1, pw);
+                            pstmt.setInt(2, u_idx2);
+                            break;
+                        }
 
-                case 3:
-                    System.out.println("수정할 이름을 입력해주세요.");
-                    pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_name = ? WHERE u_idx = ? and u_level != "clerk"
-                    """);
-                    String name2 = scan.next();
-                        if (name2.contains(" ")) {
+                    case 3:
+                        System.out.println("수정할 이름을 입력해주세요.");
+                        pstmt = conn.prepareStatement("""
+                                UPDATE users SET u_name = ? WHERE u_idx = ?
+                                """);
+                        String name2 = scan.next();
+                        if (name2.contains(" ") || name2.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -399,13 +405,13 @@ public class CustomerDBRepository {
                             }
                         }
 
-                case 4:
-                    System.out.println("수정할 핸드폰번호를(-까지 입력해주세요)");
-                    pstmt = conn.prepareStatement("""
-                    UPDATE users SET u_phone = ? WHERE u_idx = ? and u_level != "clerk"
-                    """);
-                    String pn = scan.next();
-                        if (pn.contains(" ")) {
+                    case 4:
+                        System.out.println("수정할 핸드폰번호를(-까지 입력해주세요)");
+                        pstmt = conn.prepareStatement("""
+                                UPDATE users SET u_phone = ? WHERE u_idx = ?
+                                """);
+                        String pn = scan.next();
+                        if (pn.contains(" ") || pn.contains("")) {
                             System.out.println("공백이 포함되어 강제종료됩니다.");
                             break;
                         } else {
@@ -421,29 +427,25 @@ public class CustomerDBRepository {
                                 break;
                             }
                         }
-            }
+                }
 
-            pstmt.executeUpdate();
+                pstmt.executeUpdate();
+                System.out.println("""
+                        수정이 완료되었습니다.
+                        """);
+                System.out.println();
+            }else {
             System.out.println("""
-                수정이 완료되었습니다.
-                (같은 직원의 정보는 수정할 수 없으므로 변경되지 않습니다.
-                 직원일 경우 내 정보 수정에서 수정하시길 바랍니다.)
-                """);
-            System.out.println();
+                            고객의 정보와 일치하지 않습니다.
+                            다시 확인 바랍니다.
+                            """);
+        }
 
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("""
                     실패하였습니다.
-                    (같은 직원의 정보를 수정할 수 없습니다.)
                     """);
-        }
-        }
-        else {
-            System.out.println("""
-                        직원 확인에 실패했습니다.
-                        다시 시도해주세요.
-                        """);
         }
         return u_idx2;
     }
