@@ -1,14 +1,15 @@
 import DB.*;
-import Menu.*;
+import Menu.ClerkMenu;
 
+import java.sql.Connection;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         System.out.println("초록은행에 오신 것을 환영합니다.");
-        boolean repeat = true;
-        while (repeat) {
+        while (true) {
             System.out.println("""
                             
                     메뉴를 선택 해 주세요.
@@ -16,34 +17,34 @@ public class Main {
                     2. 회원가입
                     3. 종료
                     """);
-
-            Scanner sc = new Scanner(System.in);
             try {
                 switch (sc.nextInt()) {
                     case 1:
                         DBSign signIn = new DBSign();
                         sc.nextLine();
-                        if(signIn.isConnection()) {
-                            loginState LS = signIn.login(sc);
-                            if (LS == loginState.CLERK) {
-                                ClerkMenu.c_main(signIn.getU_idx(), sc);
-                            } else if (LS == loginState.CUSTOMER) {
-//                            CustomerMenu.c_main(signIn.getU_idx());
-                            } else {
-                                repeat = false;
-                                throw new RuntimeException();
+                        if (signIn.isConnection()) {
+                            switch(signIn.login(sc)){
+                                case CLERK:
+                                    ClerkMenu clerkMenu = new ClerkMenu(signIn.conn);
+                                    clerkMenu.c_main(signIn.getU_idx(), sc);
+                                case CUSTOMER:
+                                    //고객 메뉴 실행
+                                case FAILED:
+                                    throw new RuntimeException();
                             }
-                        }else {
-                            repeat = false;
                         }
                         break;
                     case 2:
                         DBSign signup = new DBSign();
-                        signup.register(sc);
+                        sc.nextLine();
+                        if (signup.isConnection()) {
+                            signup.register(sc);
+                        } else {
+                            break;
+                        }
                         throw new RuntimeException();
                     case 3:
                         System.out.println("프로그램을 종료합니다");
-                        repeat = false;
                         break;
                     default:
                         throw new InputMismatchException();
