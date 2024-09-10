@@ -49,12 +49,14 @@ public class Main {
                     default:
                         throw new InputMismatchException();
                 }
-                break;
             } catch (Exception e) {
                 if (e instanceof InputMismatchException) {
-                    System.out.println("1이나 2를 입력 해 주세요");
+                    System.out.println("올바른 숫자를 입력 해 주세요");
+                    sc.nextLine();
+                    continue;
                 }
             }
+            break;
         }
     }
 }

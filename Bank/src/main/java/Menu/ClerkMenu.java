@@ -44,6 +44,8 @@ public class ClerkMenu {
                         throw new Exception("메인 메뉴로");
                     case 5:
                     case 6:
+                        dbClerk.depositWithdraw();
+                        throw new Exception("메인 메뉴로");
                     case 7:
                     case 8:
                         break;
