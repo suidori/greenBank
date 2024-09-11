@@ -1,7 +1,12 @@
 package Menu;
 
+<<<<<<< HEAD
 import java.sql.Connection;
 import java.sql.SQLException;
+=======
+import DB.DBClerk;
+
+>>>>>>> main
 import java.util.Scanner;
 
 public class ClerkDetailedMenu {
