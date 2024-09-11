@@ -1,7 +1,7 @@
 package Menu;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import DB.DBClerk;
+
 import java.util.Scanner;
 
 public class ClerkDetailedMenu {

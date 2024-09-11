@@ -1,5 +1,6 @@
 import DB.*;
 import Menu.ClerkMenu;
+import Menu.CustomerMenu;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -27,7 +28,8 @@ public class Main {
                                     ClerkMenu clerkMenu = new ClerkMenu(signIn.conn);
                                     clerkMenu.c_main(signIn.getU_idx(), sc);
                                 case CUSTOMER:
-                                    //고객 메뉴 실행
+                                    CustomerMenu customerMenu = new CustomerMenu(signIn.conn);
+                                    customerMenu.c_main(signIn.getU_idx(), sc);
                                 case FAILED:
                                     throw new RuntimeException();
                             }
