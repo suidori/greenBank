@@ -14,7 +14,7 @@ public class DBClerk {
     PreparedStatement pstmt;
     ResultSet rs;
 
-    public DBClerk() {
+    public DBClerk(int u_idx, Scanner sc, Connection conn) {
         this.u_idx = u_idx;
         this.sc = sc;
         this.conn = conn;
@@ -283,25 +283,21 @@ public class DBClerk {
     }
 
     //본인 계좌 조회  <<<<<<<<<<<<<<<<<<<<<<
-    public void selectMyAcc(int u_idx) {
-        try {
-            pstmt = conn.prepareStatement(
-                    "SELECT a_number FROM users JOIN owners ON users.u_idx = owners.u_idx WHERE users.u_idx = ?");
-            pstmt.setInt(1, u_idx);
-            rs = pstmt.executeQuery();
-            System.out.println("내 계좌 조회");
-            while (rs.next()) {
-                System.out.println("""
-                        <계좌목록>
-                        %s
-                        """.formatted(
-                        rs.getInt("a_number")));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+//    public void selectMyAcc() {
+//        try {
+//            pstmt = conn.prepareStatement(
+//                    "SELECT a_number FROM owners WHERE u_idx = ?");
+//            pstmt.setInt(1, u_idx);
+//            rs = pstmt.executeQuery();
+//            System.out.println("내 계좌 조회");
+//            System.out.println("<계좌목록>");
+//            while (rs.next()) {
+//                System.out.println(""+rs.getInt("a_number"));
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     //입금/출금
     public void depositWithdraw() {
@@ -534,19 +530,16 @@ public class DBClerk {
     }
 
     //계좌 정보 조회  <<<<<<<<<<<<<<<<<<<<<<
-    public void select() throws SQLException {
-        Scanner sc = new Scanner(System.in);
+    public void select(){
+        sc.nextLine();
         try {
             System.out.println();
             System.out.println("계좌 정보 조회");
             System.out.print("예금주명: ");
-            String uName = sc.next();
-            System.out.print("아이디: ");
-            String uId = sc.next();
+            String uName = sc.nextLine();
 
-            pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_name = ? AND u_id = ?");
+            pstmt = conn.prepareStatement("SELECT * FROM users WHERE u_name = ?");
             pstmt.setString(1, uName);
-            pstmt.setString(2, uId);
             rs = pstmt.executeQuery();
             List<Integer> cusNum = new ArrayList<>(List.of());
             while (rs.next()) {
@@ -582,10 +575,7 @@ public class DBClerk {
                 int aPassword = sc.nextInt();
                 if (accountNumbers.contains(selectedNumber)) {
                     pstmt = conn.prepareStatement(
-                            "SELECT h.a_number, h.h_calc, h.h_balance, h.h_timestamp " +
-                                    "FROM history h JOIN accounts a ON h.a_number = a.a_number " +
-                                    "WHERE h.a_number = ? AND a.a_password = ? " +
-                                    "ORDER BY h.h_timestamp DESC LIMIT 5"
+                            "SELECT * FROM history h, accounts a WHERE h.a_number = a.a_number AND a.a_number = ? AND a.a_password = ? ORDER BY h.h_timestamp DESC LIMIT 5"
                     );
                     pstmt.setInt(1, selectedNumber);
                     pstmt.setInt(2, aPassword);
@@ -613,6 +603,8 @@ public class DBClerk {
                 } else {
                     System.out.println("선택한 계좌번호가 유효하지 않습니다.");
                 }
+            } else {
+                System.out.println("화면에 표시된 목록에서 선택 해 주세요.");
             }
 
         } catch (Exception e) {
@@ -621,8 +613,7 @@ public class DBClerk {
     }
 
     //직원 -> 계좌관리 > 1. 신규 계좌 개설  <<<<<<<<<<<<<<<<<<<<<<
-    public void insert() throws SQLException {
-        Scanner sc = new Scanner(System.in);
+    public void insert(){
         try {
             System.out.println("신규계좌개설");
             System.out.println();
@@ -640,7 +631,7 @@ public class DBClerk {
                 System.out.println();
                 System.out.print("계좌 비밀번호 설정(숫자 네자리): ");
                 int aPassword = sc.nextInt();
-                if (Integer.toString(aPassword).length() != 4) {
+                if (1000>aPassword || aPassword>9999) {
                     System.out.println("숫자 네자리를 입력하세요");
                     return;
                 }
@@ -675,7 +666,6 @@ public class DBClerk {
 
     //직원 -> 계좌관리 > 2. 예금주 관리 > 1. 추가  <<<<<<<<<<<<<<<<<<<<<<
     public void updateOwners() throws SQLException {
-        Scanner sc = new Scanner(System.in);
         try {
             System.out.println("예금주 추가");
             System.out.println("예금주를 추가할 계좌번호: ");
@@ -720,6 +710,7 @@ public class DBClerk {
                             System.out.println("비밀번호가 틀렸습니다.");
                         }
                     }
+                    break;
                 }
             } else {
                 System.out.println("존재하지 않는 계좌입니다.");
@@ -731,8 +722,7 @@ public class DBClerk {
     }
 
     //직원 -> 계좌관리 > 2. 예금주 관리 > 2. 삭제  <<<<<<<<<<<<<<<<<<<<<<
-    public void delOwners() throws SQLException {
-        Scanner sc = new Scanner(System.in);
+    public void delOwners() {
         try {
             conn.setAutoCommit(false);
             System.out.println("계좌번호: ");
@@ -775,6 +765,7 @@ public class DBClerk {
                     } else {
                         System.out.println("해당 계좌의 예금주 정보와 일치하지 않습니다.");
                     }
+                    break;
                 }
             } else {
                 System.out.println("존재하지 않는 계좌입니다.");
@@ -786,8 +777,7 @@ public class DBClerk {
     }
 
     //직원 -> 계좌관리 > 2. 예금주 관리 > 2. 예금주 조회  <<<<<<<<<<<<<<<<<<<<<<
-    public void checkOwners() throws SQLException {
-        Scanner sc = new Scanner(System.in);
+    public void checkOwners() {
         System.out.println();
         try {
             while (true) {
@@ -812,6 +802,7 @@ public class DBClerk {
                     System.out.println("존재하지 않는 계좌입니다.");
                     System.out.println();
                 }
+                break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -820,8 +811,7 @@ public class DBClerk {
     }
 
     //직원 -> 계좌관리 > 3. 계좌 비밀번호 변경  <<<<<<<<<<<<<<<<<<<<<<
-    public void updateApassword() throws SQLException {
-        Scanner sc = new Scanner(System.in);
+    public void updateApassword() {
         try {
             while (true) {
                 System.out.println("계좌 비밀번호 변경");
@@ -864,6 +854,7 @@ public class DBClerk {
                 } else {
                     System.out.println("존재하지 않는 계좌입니다.");
                 }
+                break;
             }
         } catch (Exception e) {
             e.printStackTrace();

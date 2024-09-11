@@ -11,7 +11,7 @@ public class ClerkMenu {
     }
 
     public void c_main(int u_idx, Scanner sc){
-        DBClerk dbClerk = new DBClerk();
+        DBClerk dbClerk = new DBClerk(u_idx, sc, conn);
         ClerkDetailedMenu clerkDetailedMenu = new ClerkDetailedMenu();      //<<<<<<<<<<<<<<<<<<<<<<<<<<
         while(true) {
             System.out.println("""
@@ -44,12 +44,13 @@ public class ClerkMenu {
                         dbClerk.myPage(temp);
                         throw new Exception("메인 메뉴로");
                     case 5:
-                        dbClerk.selectMyAcc(u_idx);
+                        dbClerk.select();
+                        throw new Exception("메인 메뉴로");
                     case 6:
                         dbClerk.depositWithdraw();
                         throw new Exception("메인 메뉴로");
                     case 7:
-                        clerkDetailedMenu.cdm();                     //<<<<<<<<<<<<<<<<<<<<<<<<<<
+                        clerkDetailedMenu.cdm(dbClerk);                     //<<<<<<<<<<<<<<<<<<<<<<<<<<
                         throw new Exception("메인 메뉴로");
                     case 8:
                         break;
