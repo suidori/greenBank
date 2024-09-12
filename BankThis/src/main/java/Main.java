@@ -27,9 +27,11 @@ public class Main {
                                 case CLERK:
                                     ClerkMenu clerkMenu = new ClerkMenu(signIn.conn);
                                     clerkMenu.c_main(signIn.getU_idx(), sc);
+                                    break;
                                 case CUSTOMER:
                                     CustomerMenu customerMenu = new CustomerMenu(signIn.conn);
                                     customerMenu.c_main(signIn.getU_idx(), sc);
+                                    break;
                                 case FAILED:
                                     throw new RuntimeException();
                             }
