@@ -88,7 +88,7 @@ public class DBClerk {
                 if (rs.next()) {
                     System.out.println("""
                                     <고객 정보>
-                                    은행고유번호 = %d
+                                    회원번호 = %d
                                     아이디 = %s
                                     비밀번호 = %s
                                     이름 = %s
