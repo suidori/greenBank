@@ -65,6 +65,10 @@ public class DBSign {
             String inputName = getValidInput(sc, "이름", this::isValidName, null);
             String inputPhone = getValidInput(sc, "전화번호", this::isValidPhone, "SELECT * FROM users WHERE u_phone = ?");
 
+            if(inputPhone.matches("^\\d{11}$")){
+                inputPhone = inputPhone.substring(0,3) + "-" + inputPhone.substring(3,7) + "-" + inputPhone.substring(7);
+            }
+
             String insertQuery = "INSERT INTO users (u_id, u_password, u_name, u_phone) VALUES (?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
                 pstmt.setString(1, inputId);
