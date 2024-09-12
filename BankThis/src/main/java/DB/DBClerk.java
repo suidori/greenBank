@@ -114,6 +114,7 @@ public class DBClerk {
                     입력이 잘못되었습니다.
                     다시 입력 바랍니다.
                     """);
+            sc.nextLine();
         }
     }
 
@@ -233,7 +234,7 @@ public class DBClerk {
                         sc.nextLine();
                         String inputId = getValidInput(sc, "아이디", this::isValidString, "SELECT * FROM users WHERE u_id = ?");
                         pstmt.setString(1, inputId);
-                        pstmt.setInt(2, u_idx);
+                        pstmt.setInt(2, u_idx2);
                         break;
                     case 2:
                         pstmt = conn.prepareStatement("""
@@ -242,7 +243,7 @@ public class DBClerk {
                         sc.nextLine();
                         String inputPassword = getValidInput(sc, "비밀번호", this::isValidString, null);
                         pstmt.setString(1, inputPassword);
-                        pstmt.setInt(2, u_idx);
+                        pstmt.setInt(2, u_idx2);
                         break;
                     case 3:
                         pstmt = conn.prepareStatement("""
@@ -251,7 +252,7 @@ public class DBClerk {
                         sc.nextLine();
                         String inputName = getValidInput(sc, "이름", this::isValidName, null);
                         pstmt.setString(1, inputName);
-                        pstmt.setInt(2, u_idx);
+                        pstmt.setInt(2, u_idx2);
                         break;
                     case 4:
                         pstmt = conn.prepareStatement("""
@@ -260,7 +261,7 @@ public class DBClerk {
                         sc.nextLine();
                         String inputPhone = getValidInput(sc, "전화번호", this::isValidPhone, "SELECT * FROM users WHERE u_phone = ?");
                         pstmt.setString(1, inputPhone);
-                        pstmt.setInt(2, u_idx);
+                        pstmt.setInt(2, u_idx2);
                         break;
                 }
                 pstmt.executeUpdate();
@@ -278,6 +279,7 @@ public class DBClerk {
             System.out.println("""
                     실패하였습니다.
                     """);
+            sc.nextLine();
         }
         return 0;
     }
@@ -665,7 +667,7 @@ public class DBClerk {
     }
 
     //직원 -> 계좌관리 > 2. 예금주 관리 > 1. 추가  <<<<<<<<<<<<<<<<<<<<<<
-    public void updateOwners() throws SQLException {
+    public void updateOwners() {
         try {
             System.out.println("예금주 추가");
             System.out.println("예금주를 추가할 계좌번호: ");
